@@ -64,20 +64,20 @@ int initialize(lua_State* state)
 	return 1;
 }
 
-int gettable(lua_State* state)
+int GetTable(lua_State* state)
 {
 	LUA->ReferencePush(iRefDatabases);
 	return 1;
 }
 
-int getdatabase(lua_State* state)
+int GetDatabase(lua_State* state)
 {
 	LUA->ReferencePush(iRefDatabases);
 	LUA->GetField(-1, LUA->CheckString(1));
 	return 1;
 }
 
-int escape(lua_State* state)
+int DBEscape(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -85,7 +85,7 @@ int escape(lua_State* state)
 	Database *mysqldb = (Database*)userdata->data;
 
 	if ( !mysqldb )
-		return 0;
+		LUA->ThrowError("Attempted to call Escape on a disconnected database");
 
 	const char* query = LUA->CheckString( 2 );
 
@@ -96,7 +96,7 @@ int escape(lua_State* state)
 	return 1;
 }
 
-int disconnect(lua_State* state)
+int DBDisconnect(lua_State* state)
 {
 	LUA->CheckType( 1, DATABASE_ID );
 
@@ -104,7 +104,7 @@ int disconnect(lua_State* state)
 	Database *mysqldb = (Database*) userdata->data;
 
 	if (!mysqldb)
-		return 0;
+		LUA->ThrowError("Attempted to call Disconnect on a disconnected database");
 
 	LUA->ReferencePush(iRefDatabases);
 		LUA->PushNil();
@@ -117,7 +117,7 @@ int disconnect(lua_State* state)
 	return 0;
 }
 
-int setcharset(lua_State* state)
+int DBSetCharacterSet(lua_State* state)
 {
 	LUA->CheckType( 1, DATABASE_ID );
 
@@ -125,7 +125,7 @@ int setcharset(lua_State* state)
 	Database *mysqldb = (Database*)userdata->data;
 
 	if ( !mysqldb )
-		return 0;
+		LUA->ThrowError("Attempted to call SetCharacterSet on a disconnected database");
 
 	const char* set = LUA->CheckString(2);
 
@@ -135,7 +135,7 @@ int setcharset(lua_State* state)
 	return 2;
 }
 
-int query(lua_State* state)
+int DBQuery(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -143,7 +143,7 @@ int query(lua_State* state)
 	Database *mysqldb = (Database*)userdata->data;
 
 	if ( !mysqldb )
-		return 0;
+		LUA->ThrowError("Attempted to call Query on a disconnected database");
 
 	const char* query = LUA->CheckString(2);
 
@@ -166,7 +166,7 @@ int query(lua_State* state)
 	return 0;
 }
 
-int poll(lua_State* state)
+int DBPoll(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -174,7 +174,7 @@ int poll(lua_State* state)
 	Database *mysqldb = (Database*)userdata->data;
 
 	if (!mysqldb)
-		return 0;
+		LUA->ThrowError("Attempted to call Poll on a disconnected database");
 
 	DispatchCompletedQueries(state, mysqldb);
 	return 0;
@@ -184,7 +184,7 @@ int poll(lua_State* state)
 	TMYSQL STUFFS
 */
 
-int pollall(lua_State* state)
+int PollAll(lua_State* state)
 {
 	LUA->ReferencePush(iRefDatabases);
 	LUA->PushNil();
@@ -407,11 +407,11 @@ GMOD_MODULE_OPEN()
 			LUA->SetField(-2, "initialize");
 			LUA->PushCFunction(initialize);
 			LUA->SetField(-2, "Connect");
-			LUA->PushCFunction(gettable);
+			LUA->PushCFunction(GetTable);
 			LUA->SetField(-2, "GetTable");
-			LUA->PushCFunction(getdatabase);
+			LUA->PushCFunction(GetDatabase);
 			LUA->SetField(-2, "GetDatabase");
-			LUA->PushCFunction(pollall);
+			LUA->PushCFunction(PollAll);
 			LUA->SetField(-2, "PollAll");
 		}
 		LUA->SetField(-2, "tmysql");
@@ -422,7 +422,7 @@ GMOD_MODULE_OPEN()
 			{
 				LUA->PushString("Tick");
 				LUA->PushString("tmysql4");
-				LUA->PushCFunction(pollall);
+				LUA->PushCFunction(PollAll);
 			}
 			LUA->Call(3, 0);
 		}
@@ -434,18 +434,18 @@ GMOD_MODULE_OPEN()
 	{
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
-		LUA->PushCFunction(disconnect);
+		LUA->PushCFunction(DBDisconnect);
 		LUA->SetField(-2, "__gc");
 
-		LUA->PushCFunction(query);
+		LUA->PushCFunction(DBQuery);
 		LUA->SetField(-2, "Query");
-		LUA->PushCFunction(escape);
+		LUA->PushCFunction(DBEscape);
 		LUA->SetField(-2, "Escape");
-		LUA->PushCFunction(disconnect);
+		LUA->PushCFunction(DBDisconnect);
 		LUA->SetField(-2, "Disconnect");
-		LUA->PushCFunction(setcharset);
+		LUA->PushCFunction(DBSetCharacterSet);
 		LUA->SetField(-2, "SetCharacterSet");
-		LUA->PushCFunction(poll);
+		LUA->PushCFunction(DBPoll);
 		LUA->SetField(-2, "Poll");
 	}
 	LUA->Pop(1);
