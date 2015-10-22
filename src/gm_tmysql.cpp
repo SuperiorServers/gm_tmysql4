@@ -84,8 +84,10 @@ int DBEscape(lua_State* state)
 	UserData* userdata = (UserData*)LUA->GetUserdata(1);
 	Database *mysqldb = (Database*)userdata->data;
 
-	if ( !mysqldb )
+	if ( !mysqldb ) {
 		LUA->ThrowError("Attempted to call Escape on a disconnected database");
+		return 0;
+	}
 
 	const char* query = LUA->CheckString( 2 );
 
@@ -103,8 +105,10 @@ int DBDisconnect(lua_State* state)
 	UserData* userdata = (UserData*) LUA->GetUserdata(1);
 	Database *mysqldb = (Database*) userdata->data;
 
-	if (!mysqldb)
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Disconnect on a disconnected database");
+		return 0;
+	}
 
 	LUA->ReferencePush(iRefDatabases);
 		LUA->PushNil();
@@ -124,8 +128,10 @@ int DBSetCharacterSet(lua_State* state)
 	UserData* userdata = (UserData*)LUA->GetUserdata(1);
 	Database *mysqldb = (Database*)userdata->data;
 
-	if ( !mysqldb )
+	if ( !mysqldb ) {
 		LUA->ThrowError("Attempted to call SetCharacterSet on a disconnected database");
+		return 0;
+	}
 
 	const char* set = LUA->CheckString(2);
 
@@ -142,8 +148,10 @@ int DBQuery(lua_State* state)
 	UserData* userdata = (UserData*)LUA->GetUserdata(1);
 	Database *mysqldb = (Database*)userdata->data;
 
-	if ( !mysqldb )
+	if ( !mysqldb ) {
 		LUA->ThrowError("Attempted to call Query on a disconnected database");
+		return 0;
+	}
 
 	const char* query = LUA->CheckString(2);
 
@@ -173,8 +181,10 @@ int DBPoll(lua_State* state)
 	UserData* userdata = (UserData*)LUA->GetUserdata(1);
 	Database *mysqldb = (Database*)userdata->data;
 
-	if (!mysqldb)
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Poll on a disconnected database");
+		return 0;
+	}
 
 	DispatchCompletedQueries(state, mysqldb);
 	return 0;
