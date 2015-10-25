@@ -25,7 +25,7 @@ solution "gm_tmysql4"
 	
 	configuration "Release"
 		if os.get() == "linux" then
-			buildoptions { "-std=c++11 -Wno-deprecated-declarations -pthread -Wl,-z,defs" }
+			buildoptions { "c++0x -Wno-deprecated-declarations -pthread -Wl,-z,defs" }
 		end
 		defines { "NDEBUG" }
 		flags{ "Optimize", "FloatFast" }
