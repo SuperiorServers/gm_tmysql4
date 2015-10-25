@@ -136,7 +136,7 @@ public:
 
 	const char*		GetDatabase(void) { return m_strDB; }
 	bool			SetCharacterSet(const char* charset, std::string& error);
-	char*			Escape(const char* query);
+	char*			Escape(const char* query, unsigned int len);
 	void			QueueQuery(const char* query, int callback = -1, int callbackref = -1, bool usenumbers = false);
 
 	Query*			GetCompletedQueries();

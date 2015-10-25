@@ -85,9 +85,8 @@ void Database::Release(void)
 	}
 }
 
-char* Database::Escape(const char* query)
+char* Database::Escape(const char* query, unsigned int len)
 {
-	size_t len = strlen(query);
 	char* escaped = new char[len * 2 + 1];
 
 	mysql_real_escape_string(m_pEscapeConnection, escaped, query, len);
@@ -147,7 +146,7 @@ void Database::DoExecute(Query* query)
 	if (err > 0)
 	{
 		// Attempt reconnect if connection is lost, once chance, one opportunity per query call
-        std::lock_guard<std::recursive_mutex> guard(m_AvailableMutex);
+		std::lock_guard<std::recursive_mutex> guard(m_AvailableMutex);
 		
 		mysql_close( pMYSQL );
 		pMYSQL = mysql_init( NULL );

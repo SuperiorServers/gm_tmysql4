@@ -89,9 +89,12 @@ int DBEscape(lua_State* state)
 		return 0;
 	}
 
-	const char* query = LUA->CheckString( 2 );
+	LUA->CheckType(2, Type::STRING);
 
-	char* escaped = mysqldb->Escape( query );
+	unsigned int len;
+	const char* query = LUA->GetString( 2, &len );
+
+	char* escaped = mysqldb->Escape( query, len );
 	LUA->PushString( escaped );
 
 	delete[] escaped;
