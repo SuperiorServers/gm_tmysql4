@@ -143,6 +143,8 @@ public:
 	int				GetServerVersion();
 	void			QueueQuery(const char* query, int callback = -1, int callbackref = -1, bool usenumbers = false);
 
+	int				GetTableIndex(void) { return m_iTableIndex; };
+
 	Query*			GetCompletedQueries();
 
 private:
@@ -185,4 +187,6 @@ private:
 	int					m_iPort;
 	const char*			m_strSocket;
 	int					m_iClientFlags;
+
+	int					m_iTableIndex;
 };

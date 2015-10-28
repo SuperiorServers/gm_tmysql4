@@ -1,8 +1,11 @@
 #include "gm_tmysql.h"
 
+unsigned int database_index = 1;
+
 Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags) :
 m_strHost(host), m_strUser(user), m_strPass(pass), m_strDB(db), m_iPort(port), m_strSocket(socket), m_iClientFlags(flags), m_pEscapeConnection(NULL)
 {
+	m_iTableIndex = database_index++;
 	work.reset(new asio::io_service::work(io_service));
 }
 
@@ -12,8 +15,6 @@ Database::~Database( void )
 
 bool Database::Initialize(std::string& error)
 {
-	static my_bool bTrue = true;
-
 	for (int i = NUM_CON_DEFAULT+1; i; i--)
 	{
 		MYSQL* mysql = mysql_init(NULL);
