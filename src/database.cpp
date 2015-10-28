@@ -49,6 +49,7 @@ bool Database::Connect(MYSQL* mysql, std::string& error)
 
 	return true;
 }
+
 void Database::Shutdown(void)
 {
 	work.reset();
@@ -88,13 +89,51 @@ void Database::Release(void)
 char* Database::Escape(const char* query, unsigned int len)
 {
 	char* escaped = new char[len * 2 + 1];
-
 	mysql_real_escape_string(m_pEscapeConnection, escaped, query, len);
 	return escaped;
 }
 
+bool Database::Option(mysql_option option, const char* arg, std::string& error)
+{
+	std::lock_guard<std::recursive_mutex> guard(m_Mutex);
+
+	if (mysql_options(m_pEscapeConnection, option, arg) > 0)
+	{
+		error.assign(mysql_error(m_pEscapeConnection));
+		return false;
+	}
+
+	for (auto iter = m_vecAvailableConnections.begin(); iter != m_vecAvailableConnections.end(); ++iter)
+	{
+		if (mysql_options(*iter, option, arg) > 0)
+		{
+			error.assign(mysql_error(*iter));
+			return false;
+		}
+	}
+
+	return true;
+}
+
+const char* Database::GetServerInfo()
+{
+	return mysql_get_server_info(m_pEscapeConnection);
+}
+
+const char* Database::GetHostInfo()
+{
+	return mysql_get_host_info(m_pEscapeConnection);
+}
+
+int Database::GetServerVersion()
+{
+	return mysql_get_server_version(m_pEscapeConnection);
+}
+
 bool Database::SetCharacterSet(const char* charset, std::string& error)
 {
+	std::lock_guard<std::recursive_mutex> guard(m_Mutex);
+
 	if (mysql_set_character_set(m_pEscapeConnection, charset) > 0)
 	{
 		error.assign(mysql_error(m_pEscapeConnection));
@@ -146,7 +185,7 @@ void Database::DoExecute(Query* query)
 	if (err > 0)
 	{
 		// Attempt reconnect if connection is lost, once chance, one opportunity per query call
-		std::lock_guard<std::recursive_mutex> guard(m_AvailableMutex);
+		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
 		
 		mysql_close( pMYSQL );
 		pMYSQL = mysql_init( NULL );

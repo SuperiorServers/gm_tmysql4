@@ -101,6 +101,72 @@ int DBEscape(lua_State* state)
 	return 1;
 }
 
+int DBOption(lua_State* state)
+{
+	LUA->CheckType(1, DATABASE_ID);
+
+	UserData* userdata = (UserData*)LUA->GetUserdata(1);
+	Database *mysqldb = (Database*)userdata->data;
+
+	if ( !mysqldb ) {
+		LUA->ThrowError("Attempted to call Option on a disconnected database");
+		return 0;
+	}
+
+	std::string error;
+	LUA->PushBool(mysqldb->Option((mysql_option) LUA->CheckNumber(2), LUA->CheckString(3), error));
+	LUA->PushString(error.c_str());
+	return 2;
+}
+
+int DBGetServerInfo(lua_State* state)
+{
+	LUA->CheckType(1, DATABASE_ID);
+
+	UserData* userdata = (UserData*)LUA->GetUserdata(1);
+	Database *mysqldb = (Database*)userdata->data;
+
+	if ( !mysqldb ) {
+		LUA->ThrowError("Attempted to call GetServerInfo on a disconnected database");
+		return 0;
+	}
+
+	LUA->PushString(mysqldb->GetServerInfo());
+	return 1;
+}
+
+int DBGetHostInfo(lua_State* state)
+{
+	LUA->CheckType(1, DATABASE_ID);
+
+	UserData* userdata = (UserData*)LUA->GetUserdata(1);
+	Database *mysqldb = (Database*)userdata->data;
+
+	if ( !mysqldb ) {
+		LUA->ThrowError("Attempted to call GetHostInfo on a disconnected database");
+		return 0;
+	}
+
+	LUA->PushString(mysqldb->GetHostInfo());
+	return 1;
+}
+
+int DBGetServerVersion(lua_State* state)
+{
+	LUA->CheckType(1, DATABASE_ID);
+
+	UserData* userdata = (UserData*)LUA->GetUserdata(1);
+	Database *mysqldb = (Database*)userdata->data;
+
+	if ( !mysqldb ) {
+		LUA->ThrowError("Attempted to call GetServerVersion on a disconnected database");
+		return 0;
+	}
+
+	LUA->PushNumber(mysqldb->GetServerVersion());
+	return 1;
+}
+
 int DBDisconnect(lua_State* state)
 {
 	LUA->CheckType( 1, DATABASE_ID );
@@ -414,6 +480,85 @@ GMOD_MODULE_OPEN()
 		LUA->PushNumber(CLIENT_PS_MULTI_RESULTS);
 		LUA->SetField(-2, "CLIENT_PS_MULTI_RESULTS");
 
+		LUA->PushNumber(MYSQL_OPT_CONNECT_TIMEOUT);
+		LUA->SetField(-2, "MYSQL_OPT_CONNECT_TIMEOUT");
+		LUA->PushNumber(MYSQL_OPT_COMPRESS);
+		LUA->SetField(-2, "MYSQL_OPT_COMPRESS");
+		LUA->PushNumber(MYSQL_OPT_NAMED_PIPE);
+		LUA->SetField(-2, "MYSQL_OPT_NAMED_PIPE");
+		LUA->PushNumber(MYSQL_INIT_COMMAND);
+		LUA->SetField(-2, "MYSQL_INIT_COMMAND");
+		LUA->PushNumber(MYSQL_READ_DEFAULT_FILE);
+		LUA->SetField(-2, "MYSQL_READ_DEFAULT_FILE");
+		LUA->PushNumber(MYSQL_READ_DEFAULT_GROUP);
+		LUA->SetField(-2, "MYSQL_READ_DEFAULT_GROUP");
+		LUA->PushNumber(MYSQL_SET_CHARSET_DIR);
+		LUA->SetField(-2, "MYSQL_SET_CHARSET_DIR");
+		LUA->PushNumber(MYSQL_SET_CHARSET_NAME);
+		LUA->SetField(-2, "MYSQL_SET_CHARSET_NAME");
+		LUA->PushNumber(MYSQL_OPT_LOCAL_INFILE);
+		LUA->SetField(-2, "MYSQL_OPT_LOCAL_INFILE");
+		LUA->PushNumber(MYSQL_OPT_PROTOCOL);
+		LUA->SetField(-2, "MYSQL_OPT_PROTOCOL");
+		LUA->PushNumber(MYSQL_SHARED_MEMORY_BASE_NAME);
+		LUA->SetField(-2, "MYSQL_SHARED_MEMORY_BASE_NAME");
+		LUA->PushNumber(MYSQL_OPT_READ_TIMEOUT);
+		LUA->SetField(-2, "MYSQL_OPT_READ_TIMEOUT");
+		LUA->PushNumber(MYSQL_OPT_WRITE_TIMEOUT);
+		LUA->SetField(-2, "MYSQL_OPT_WRITE_TIMEOUT");
+		LUA->PushNumber(MYSQL_OPT_USE_RESULT);
+		LUA->SetField(-2, "MYSQL_OPT_USE_RESULT");
+		LUA->PushNumber(MYSQL_OPT_USE_REMOTE_CONNECTION);
+		LUA->SetField(-2, "MYSQL_OPT_USE_REMOTE_CONNECTION");
+		LUA->PushNumber(MYSQL_OPT_USE_EMBEDDED_CONNECTION);
+		LUA->SetField(-2, "MYSQL_OPT_USE_EMBEDDED_CONNECTION");
+		LUA->PushNumber(MYSQL_OPT_GUESS_CONNECTION);
+		LUA->SetField(-2, "MYSQL_OPT_GUESS_CONNECTION");
+		LUA->PushNumber(MYSQL_SET_CLIENT_IP);
+		LUA->SetField(-2, "MYSQL_SET_CLIENT_IP");
+		LUA->PushNumber(MYSQL_SECURE_AUTH);
+		LUA->SetField(-2, "MYSQL_SECURE_AUTH");
+		LUA->PushNumber(MYSQL_REPORT_DATA_TRUNCATION);
+		LUA->SetField(-2, "MYSQL_REPORT_DATA_TRUNCATION");
+		LUA->PushNumber(MYSQL_OPT_RECONNECT);
+		LUA->SetField(-2, "MYSQL_OPT_RECONNECT");
+		LUA->PushNumber(MYSQL_OPT_SSL_VERIFY_SERVER_CERT);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_VERIFY_SERVER_CERT");
+		LUA->PushNumber(MYSQL_PLUGIN_DIR);
+		LUA->SetField(-2, "MYSQL_PLUGIN_DIR");
+		LUA->PushNumber(MYSQL_DEFAULT_AUTH);
+		LUA->SetField(-2, "MYSQL_DEFAULT_AUTH");
+		LUA->PushNumber(MYSQL_OPT_BIND);
+		LUA->SetField(-2, "MYSQL_OPT_BIND");
+		LUA->PushNumber(MYSQL_OPT_SSL_KEY);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_KEY");
+		LUA->PushNumber(MYSQL_OPT_SSL_CERT);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_CERT");
+		LUA->PushNumber(MYSQL_OPT_SSL_CA);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_CA");
+		LUA->PushNumber(MYSQL_OPT_SSL_CAPATH);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_CAPATH");
+		LUA->PushNumber(MYSQL_OPT_SSL_CIPHER);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_CIPHER");
+		LUA->PushNumber(MYSQL_OPT_SSL_CRL);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_CRL");
+		LUA->PushNumber(MYSQL_OPT_SSL_CRLPATH);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_CRLPATH");
+		LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_RESET);
+		LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_RESET");
+		LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_ADD);
+		LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_ADD");
+		LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_DELETE);
+		LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_DELETE");
+		LUA->PushNumber(MYSQL_SERVER_PUBLIC_KEY);
+		LUA->SetField(-2, "MYSQL_SERVER_PUBLIC_KEY");
+		LUA->PushNumber(MYSQL_ENABLE_CLEARTEXT_PLUGIN);
+		LUA->SetField(-2, "MYSQL_ENABLE_CLEARTEXT_PLUGIN");
+		LUA->PushNumber(MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS);
+		LUA->SetField(-2, "MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS");
+		LUA->PushNumber(MYSQL_OPT_SSL_ENFORCE);
+		LUA->SetField(-2, "MYSQL_OPT_SSL_ENFORCE");
+
 		LUA->CreateTable();
 		{
 			LUA->PushCFunction(initialize);
@@ -454,6 +599,14 @@ GMOD_MODULE_OPEN()
 		LUA->SetField(-2, "Query");
 		LUA->PushCFunction(DBEscape);
 		LUA->SetField(-2, "Escape");
+		LUA->PushCFunction(DBOption);
+		LUA->SetField(-2, "Option");
+		LUA->PushCFunction(DBGetServerInfo);
+		LUA->SetField(-2, "GetServerInfo");
+		LUA->PushCFunction(DBGetHostInfo);
+		LUA->SetField(-2, "GetHostInfo");
+		LUA->PushCFunction(DBGetServerVersion);
+		LUA->SetField(-2, "GetServerVersion");
 		LUA->PushCFunction(DBDisconnect);
 		LUA->SetField(-2, "Disconnect");
 		LUA->PushCFunction(DBSetCharacterSet);

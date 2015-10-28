@@ -137,6 +137,10 @@ public:
 	const char*		GetDatabase(void) { return m_strDB; }
 	bool			SetCharacterSet(const char* charset, std::string& error);
 	char*			Escape(const char* query, unsigned int len);
+	bool			Option(mysql_option option, const char* arg, std::string& error);
+	const char*		GetServerInfo();
+	const char*		GetHostInfo();
+	int				GetServerVersion();
 	void			QueueQuery(const char* query, int callback = -1, int callbackref = -1, bool usenumbers = false);
 
 	Query*			GetCompletedQueries();
@@ -151,7 +155,7 @@ private:
 
 	MYSQL* GetAvailableConnection()
 	{
-		std::lock_guard<std::recursive_mutex> guard(m_AvailableMutex);
+		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
 		MYSQL* result = m_vecAvailableConnections.front();
 		m_vecAvailableConnections.pop_front();
 		return result;
@@ -159,7 +163,7 @@ private:
 
 	void ReturnConnection(MYSQL* mysql)
 	{
-		std::lock_guard<std::recursive_mutex> guard(m_AvailableMutex);
+		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
 		m_vecAvailableConnections.push_back(mysql);
 	}
 
@@ -168,7 +172,7 @@ private:
 	waitfree_query_queue<Query> m_completedQueries;
 	std::deque< MYSQL* > m_vecAvailableConnections;
 
-	mutable std::recursive_mutex m_AvailableMutex;
+	mutable std::recursive_mutex m_Mutex;
 
 	std::vector<std::thread> thread_group;
 	asio::io_service io_service;
