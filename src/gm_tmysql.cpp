@@ -227,8 +227,6 @@ int DBDisconnect(lua_State* state)
 	}
 
 	DisconnectDB(state, mysqldb);
-
-	userdata->data = NULL;
 	return 0;
 }
 
