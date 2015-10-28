@@ -226,11 +226,6 @@ int DBDisconnect(lua_State* state)
 		return 0;
 	}
 
-	LUA->ReferencePush(iRefDatabases);
-		LUA->PushNil();
-		LUA->SetField(-2, mysqldb->GetDatabase());
-	LUA->Pop();
-
 	DisconnectDB(state, mysqldb);
 
 	userdata->data = NULL;
