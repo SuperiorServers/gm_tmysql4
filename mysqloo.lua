@@ -37,19 +37,19 @@ seriouslyeatadick.__index = seriouslyeatadick
 function mysqloo.connect(host, username, password, database, port, sockt, flags)
 	return setmetatable({
 		db = tmysql.Create(host, username, password, database, port, sockt, flags),
-		connected = false,
+		internalerror = false,
 	},gofuckurself)
 end
 
 function gofuckurself:connect()
 	local success, err = self.db:Connect()
 
-	if not self.db then
+	if not success then
+		self.internalerror = true
 		self:onConnectionFailed(err)
 		return
 	end
 
-	self.connected = true
 	self:onConnected()
 end
 
@@ -89,8 +89,10 @@ function gofuckurself:abortAllQueries()
 end
 
 function gofuckurself:status()
-	if self.connected then
+	if self.db:IsConnected() then
 		return mysqloo.DATABASE_CONNECTED
+	elseif self.internalerror then
+		return mysqloo.DATABASE_INTERNAL_ERROR
 	else
 		return mysqloo.DATABASE_NOT_CONNECTED
 	end
@@ -126,10 +128,10 @@ function seriouslyeatadick:start()
 		self.affected = results.affected
 		self.data = results.data
 		if results.status then
-			self:onSuccess(self.data)
 			for k,v in pairs(self.data) do
 				self:onData({k=v}) -- ???
 			end
+			self:onSuccess(self.data)
 		else
 			self:onError(self.error, self.query)
 		end
