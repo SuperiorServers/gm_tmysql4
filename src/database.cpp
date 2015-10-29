@@ -2,9 +2,17 @@
 
 unsigned int database_index = 1;
 
-Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags) :
-m_strHost(host), m_strUser(user), m_strPass(pass), m_strDB(db), m_iPort(port), m_strSocket(socket), m_iClientFlags(flags), m_pEscapeConnection(NULL)
+Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags)
 {
+	m_strHost = host;
+	m_strUser = user;
+	m_strPass = pass;
+	m_strDB = db;
+	m_iPort = port;
+	m_strSocket = socket;
+	m_iClientFlags = flags;
+	m_pEscapeConnection = NULL;
+	m_bIsConnected = false;
 	m_iTableIndex = database_index++;
 	work.reset(new asio::io_service::work(io_service));
 }
@@ -37,6 +45,7 @@ bool Database::Initialize(std::string& error)
 		}));
 	}
 
+	m_bIsConnected = true;
 	return true;
 }
 
@@ -85,6 +94,8 @@ void Database::Release(void)
 		mysql_close(m_pEscapeConnection);
 		m_pEscapeConnection = NULL;
 	}
+
+	m_bIsConnected = false;
 }
 
 char* Database::Escape(const char* query, unsigned int len)

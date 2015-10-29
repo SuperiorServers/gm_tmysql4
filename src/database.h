@@ -145,6 +145,8 @@ public:
 
 	int				GetTableIndex(void) { return m_iTableIndex; };
 
+	bool			IsConnected(void) { return m_bIsConnected; };
+
 	Query*			GetCompletedQueries();
 
 private:
@@ -179,6 +181,8 @@ private:
 	std::vector<std::thread> thread_group;
 	asio::io_service io_service;
 	std::auto_ptr<asio::io_service::work> work;
+
+	bool				m_bIsConnected;
 
 	const char*			m_strHost;
 	const char*			m_strUser;
