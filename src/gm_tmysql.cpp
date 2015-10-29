@@ -108,7 +108,7 @@ int DBEscape(lua_State* state)
 	}
 
 	if ( !mysqldb->IsConnected() ) {
-		LUA->ThrowError("Attempted to call Query on a Disconnected database");
+		LUA->ThrowError("Attempted to call Escape on a Disconnected database");
 		return 0;
 	}
 
@@ -158,7 +158,7 @@ int DBGetServerInfo(lua_State* state)
 	}
 
 	if ( !mysqldb->IsConnected() ) {
-		LUA->ThrowError("Attempted to call Query on a Disconnected database");
+		LUA->ThrowError("Attempted to call GetServerInfo on a Disconnected database");
 		return 0;
 	}
 
@@ -179,7 +179,7 @@ int DBGetHostInfo(lua_State* state)
 	}
 
 	if ( !mysqldb->IsConnected() ) {
-		LUA->ThrowError("Attempted to call Query on a Disconnected database");
+		LUA->ThrowError("Attempted to call GetHostInfo on a Disconnected database");
 		return 0;
 	}
 
@@ -200,7 +200,7 @@ int DBGetServerVersion(lua_State* state)
 	}
 
 	if ( !mysqldb->IsConnected() ) {
-		LUA->ThrowError("Attempted to call Query on a Disconnected database");
+		LUA->ThrowError("Attempted to call GetServerVersion on a Disconnected database");
 		return 0;
 	}
 
@@ -291,7 +291,7 @@ int DBSetCharacterSet(lua_State* state)
 	}
 
 	if ( !mysqldb->IsConnected() ) {
-		LUA->ThrowError("Attempted to call Query on a Disconnected database");
+		LUA->ThrowError("Attempted to call SetCharacterSet on a Disconnected database");
 		return 0;
 	}
 
