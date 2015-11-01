@@ -408,7 +408,7 @@ void DispatchCompletedQueries(lua_State* state, Database* mysqldb)
 	{
 		Query* query = completed;
 
-		if (query->GetCallback() >= 0)
+		if (!in_shutdown && query->GetCallback() >= 0)
 			HandleQueryCallback(state, query);
 
 		completed = query->next;
@@ -439,14 +439,11 @@ void HandleQueryCallback(lua_State* state, Query* query)
 	LUA->CreateTable();
 	PopulateTableFromQuery(state, query);
 
-	if (!in_shutdown)
+	// For some reason PCall crashes during shutdown??
+	if (LUA->PCall(args, 0, 0) != 0)
 	{
-		// For some reason PCall crashes during shutdown??
-		if (LUA->PCall(args, 0, 0) != 0)
-		{
-			const char* err = LUA->GetString(-1);
-			LUA->ThrowError(err);
-		}
+		const char* err = LUA->GetString(-1);
+		LUA->ThrowError(err);
 	}
 }
 
@@ -694,8 +691,6 @@ GMOD_MODULE_OPEN()
 	{
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
-		LUA->PushCFunction(DBDisconnect);
-		LUA->SetField(-2, "__gc");
 
 		LUA->PushCFunction(DBQuery);
 		LUA->SetField(-2, "Query");
