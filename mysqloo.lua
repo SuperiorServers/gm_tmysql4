@@ -129,7 +129,7 @@ function seriouslyeatadick:start()
 		self.data = results.data
 		if results.status then
 			for k,v in pairs(self.data) do
-				self:onData({k=v}) -- ???
+				self:onData(v)
 			end
 			self:onSuccess(self.data)
 		else
