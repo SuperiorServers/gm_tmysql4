@@ -439,10 +439,14 @@ void HandleQueryCallback(lua_State* state, Query* query)
 	LUA->CreateTable();
 	PopulateTableFromQuery(state, query);
 
-	if (LUA->PCall(args, 0, 0) != 0 && !in_shutdown)
+	if (!in_shutdown)
 	{
-		const char* err = LUA->GetString(-1);
-		LUA->ThrowError(err);
+		// For some reason PCall crashes during shutdown??
+		if (LUA->PCall(args, 0, 0) != 0)
+		{
+			const char* err = LUA->GetString(-1);
+			LUA->ThrowError(err);
+		}
 	}
 }
 
