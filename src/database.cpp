@@ -4,12 +4,12 @@ unsigned int database_index = 1;
 
 Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags)
 {
-	m_strHost = host;
-	m_strUser = user;
-	m_strPass = pass;
-	m_strDB = db;
+	m_strHost.assign(host);
+	m_strUser.assign(user);
+	m_strPass.assign(pass);
+	m_strDB.assign(db);
 	m_iPort = port;
-	m_strSocket = socket;
+	m_strSocket.assign(socket != NULL ? socket : "");
 	m_iClientFlags = flags;
 	m_pEscapeConnection = NULL;
 	m_bIsConnected = false;
@@ -51,7 +51,7 @@ bool Database::Initialize(std::string& error)
 
 bool Database::Connect(MYSQL* mysql, std::string& error)
 {
-	if (!mysql_real_connect(mysql, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, m_strSocket, m_iClientFlags))
+	if (!mysql_real_connect(mysql, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, m_strSocket.c_str(), m_iClientFlags))
 	{
 		error.assign(mysql_error(mysql));
 		return false;
@@ -199,16 +199,16 @@ void Database::DoExecute(Query* query)
 		// Attempt reconnect if connection is lost, once chance, one opportunity per query call
 		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
 		
-		mysql_close( pMYSQL );
-		pMYSQL = mysql_init( NULL );
+		mysql_close(pMYSQL);
+		pMYSQL = mysql_init(NULL);
 
-		mysql_real_connect(pMYSQL, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, m_strSocket, m_iClientFlags);
+		mysql_real_connect(pMYSQL, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, m_strSocket.c_str(), m_iClientFlags);
 	}
 
 	mysql_real_query(pMYSQL, strquery, len);
-
-	int status;
-	do {
+	
+	int status = 0;
+	while (status != -1) {
 		MYSQL_RES* pResult = mysql_store_result(pMYSQL);
 		unsigned int errorno = mysql_errno(pMYSQL);
 
@@ -222,7 +222,7 @@ void Database::DoExecute(Query* query)
 		}
 		query->AddResult(result);
 		status = mysql_next_result(pMYSQL);
-	} while (status != -1);
+	}
 
 	PushCompleted(query);
 	ReturnConnection(pMYSQL);

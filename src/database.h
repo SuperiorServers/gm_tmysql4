@@ -134,7 +134,7 @@ public:
 	std::size_t		RunShutdownWork(void);
 	void			Release(void);
 
-	const char*		GetDatabase(void) { return m_strDB; }
+	const char*		GetDatabase(void) { return m_strDB.c_str(); }
 	bool			SetCharacterSet(const char* charset, std::string& error);
 	char*			Escape(const char* query, unsigned int len);
 	bool			Option(mysql_option option, const char* arg, std::string& error);
@@ -184,12 +184,12 @@ private:
 
 	bool				m_bIsConnected;
 
-	const char*			m_strHost;
-	const char*			m_strUser;
-	const char*			m_strPass;
-	const char*			m_strDB;
+	std::string			m_strHost;
+	std::string			m_strUser;
+	std::string			m_strPass;
+	std::string			m_strDB;
 	int					m_iPort;
-	const char*			m_strSocket;
+	std::string			m_strSocket;
 	int					m_iClientFlags;
 
 	int					m_iTableIndex;

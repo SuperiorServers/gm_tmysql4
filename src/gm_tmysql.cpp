@@ -31,7 +31,7 @@ Database* makeDatabase(lua_State* state)
 		pass,
 		db,
 		port,
-		LUA->IsType(6, Type::STRING) ? LUA->GetString(6) : NULL,
+		LUA->GetString(6),
 		(int) LUA->GetNumber(7)
 	);
 }
