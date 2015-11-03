@@ -42,6 +42,8 @@ function mysqloo.connect(host, username, password, database, port, sockt, flags)
 end
 
 function gofuckurself:connect()
+	if self.db:IsConnected() then return end -- prevent retardation
+	
 	local success, err = self.db:Connect()
 
 	if not success then
