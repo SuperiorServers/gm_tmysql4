@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<Filter Include="src">
+			<UniqueIdentifier>{046E27DB-5CEF-914E-BF4C-664258EA8DF5}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include">
+			<UniqueIdentifier>{0CF83768-203F-0747-B56E-5829797B943A}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\GarrysMod">
+			<UniqueIdentifier>{53176A9F-F45A-AA46-8084-FC98CB8160E8}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\GarrysMod\Lua">
+			<UniqueIdentifier>{70B4955F-D070-7543-A4EF-C8FE3CD1E61D}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\linux">
+			<UniqueIdentifier>{3BC1034F-3206-9F45-8AE1-60CD94B34158}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\linux\mysql">
+			<UniqueIdentifier>{3C2A9E8E-CAC5-EE45-8067-FBC8453A6A05}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\linux\mysql\psi">
+			<UniqueIdentifier>{C845102C-2B29-B444-A2B4-DABF1D2247B9}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\windows">
+			<UniqueIdentifier>{4C3DC51B-F4E4-B341-85E7-DF084AC8A87C}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\windows\mysql">
+			<UniqueIdentifier>{72BFCA19-3086-4041-BB07-0DA845EBEA36}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="include\windows\mysql\psi">
+			<UniqueIdentifier>{76FB3B1B-4430-944C-881F-44EAD1D4D494}</UniqueIdentifier>
+		</Filter>
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="..\src\database.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\gm_tmysql.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\timer.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\GarrysMod\Lua\Interface.h">
+			<Filter>include\GarrysMod\Lua</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\GarrysMod\Lua\LuaBase.h">
+			<Filter>include\GarrysMod\Lua</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\GarrysMod\Lua\Types.h">
+			<Filter>include\GarrysMod\Lua</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\GarrysMod\Lua\UserData.h">
+			<Filter>include\GarrysMod\Lua</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\big_endian.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\byte_order_generic.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\byte_order_generic_x86.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\decimal.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\errmsg.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\keycache.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\little_endian.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysqld_ername.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysqld_error.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql_com.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql_com_server.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql_embed.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql_time.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql_version.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_alloc.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_byteorder.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_compiler.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_config.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_dbug.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_dir.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_getopt.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_global.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_list.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_pthread.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_sys.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\my_xml.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\m_ctype.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\m_string.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\sql_common.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\sql_state.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\sslopt-case.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\sslopt-longopts.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\sslopt-vars.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\typelib.h">
+			<Filter>include\linux</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\client_authentication.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\client_plugin.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\get_password.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\plugin_auth_common.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\plugin_trace.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\service_mysql_alloc.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\service_my_snprintf.h">
+			<Filter>include\linux\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_file.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_idle.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_mdl.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_memory.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_ps.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_socket.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_sp.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_stage.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_statement.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_table.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_thread.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\mysql_transaction.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\psi.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\psi_base.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\linux\mysql\psi\psi_memory.h">
+			<Filter>include\linux\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\big_endian.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\byte_order_generic.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\byte_order_generic_x86.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\decimal.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\errmsg.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\keycache.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\little_endian.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysqld_ername.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysqld_error.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql_com.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql_com_server.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql_embed.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql_time.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql_version.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_alloc.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_byteorder.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_compiler.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_config.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_dbug.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_dir.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_getopt.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_global.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_list.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_pthread.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_sys.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\my_xml.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\m_ctype.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\m_string.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\sql_common.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\sql_state.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\sslopt-case.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\sslopt-longopts.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\sslopt-vars.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\typelib.h">
+			<Filter>include\windows</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\client_authentication.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\client_plugin.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\get_password.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\plugin_auth_common.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\plugin_trace.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\service_mysql_alloc.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\service_my_snprintf.h">
+			<Filter>include\windows\mysql</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_file.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_idle.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_mdl.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_memory.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_ps.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_socket.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_sp.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_stage.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_statement.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_table.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_thread.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\mysql_transaction.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\psi.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\psi_base.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+		<ClInclude Include="..\include\windows\mysql\psi\psi_memory.h">
+			<Filter>include\windows\mysql\psi</Filter>
+		</ClInclude>
+	</ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="..\src\database.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\gm_tmysql.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\timer.cpp">
+			<Filter>src</Filter>
+		</ClCompile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\include\linux\mysql\client_plugin.h.pp">
+			<Filter>include\linux\mysql</Filter>
+		</None>
+		<None Include="..\include\windows\mysql\client_plugin.h.pp">
+			<Filter>include\windows\mysql</Filter>
+		</None>
+	</ItemGroup>
+</Project>

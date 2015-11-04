@@ -1,4 +1,4 @@
-#ifdef ENABLE_TIMER
+#ifdef ENABLE_QUERY_TIMERS
 
 #include "timer.h"
 

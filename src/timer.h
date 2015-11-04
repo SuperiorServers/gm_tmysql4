@@ -1,4 +1,4 @@
-#ifdef ENABLE_TIMER
+#ifdef ENABLE_QUERY_TIMERS
 
 #ifndef TMYSQL4_TIMER
 #define TMYSQL4_TIMER

@@ -1,3 +1,5 @@
+-- bjam release address-model=32 runtime-link=static  --with-system --with-thread --with-date_time --with-regex --with-serialization stage
+
 local boost = "/media/storage/Documents/Developer/boost_1_59_0/"
 if os.get() == "windows" then
 	boost = "D:/Documents/Developer/boost_1_59_0"
@@ -31,7 +33,7 @@ solution "gm_tmysql4"
 		flags{ "Optimize", "FloatFast" }
 	
 	project "gm_tmysql4"
-		defines { "GMMODULE" }
+		defines { "GMMODULE", "ENABLE_QUERY_TIMERS" }
 		files { "src/**.*", "include/**.*" }
 		kind "SharedLib"
 		

@@ -107,7 +107,7 @@ public:
 	void				AddResult(Result* result) { m_pResults.push_back(result); }
 	Results				GetResults(void) { return m_pResults; }
 
-#ifdef ENABLE_TIMER
+#ifdef ENABLE_QUERY_TIMERS
 	double				GetQueryTime(void) { return m_queryTimer.GetElapsedSeconds(); }
 #endif
 
@@ -120,7 +120,7 @@ private:
 
 	Results				m_pResults;
 
-#ifdef ENABLE_TIMER
+#ifdef ENABLE_QUERY_TIMERS
 	Timer				m_queryTimer;
 #endif
 

@@ -525,7 +525,7 @@ void PopulateTableFromQuery(lua_State* state, Query* query)
 				PopulateTableFromResult(state, result->GetResult(), query->GetUseNumbers());
 				LUA->SetField(-2, "data");
 			}
-#ifdef ENABLE_TIMER
+#ifdef ENABLE_QUERY_TIMERS
 			LUA->PushNumber(query->GetQueryTime());
 			LUA->SetField(-2, "time");
 #endif
