@@ -2,6 +2,7 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <string>
 #include <boost/asio.hpp>
 #include "timer.h"
 
@@ -106,7 +107,9 @@ public:
 	void				AddResult(Result* result) { m_pResults.push_back(result); }
 	Results				GetResults(void) { return m_pResults; }
 
+#ifdef ENABLE_TIMER
 	double				GetQueryTime(void) { return m_queryTimer.GetElapsedSeconds(); }
+#endif
 
 private:
 
@@ -117,7 +120,9 @@ private:
 
 	Results				m_pResults;
 
+#ifdef ENABLE_TIMER
 	Timer				m_queryTimer;
+#endif
 
 public:
 	Query*				next;

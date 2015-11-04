@@ -1,6 +1,6 @@
-local boost = "/home/jake/Developer/boost_1_57_0"
+local boost = "/media/storage/Documents/Developer/boost_1_59_0/"
 if os.get() == "windows" then
-	boost = "D:/Documents/Developer/boost_1_57_0"
+	boost = "D:/Documents/Developer/boost_1_59_0"
 end
 
 solution "gm_tmysql4"
@@ -25,13 +25,13 @@ solution "gm_tmysql4"
 	
 	configuration "Release"
 		if os.get() == "linux" then
-			buildoptions { "-std=c++0x -Wno-deprecated-declarations -pthread -Wl,-z,defs" }
+			buildoptions { "-std=c++0x -pthread -Wl,-z,defs" }
 		end
 		defines { "NDEBUG" }
 		flags{ "Optimize", "FloatFast" }
 	
 	project "gm_tmysql4"
-		defines { "GMMODULE", "ENABLE_QUERY_TIMERS" }
+		defines { "GMMODULE" }
 		files { "src/**.*", "include/**.*" }
 		kind "SharedLib"
 		

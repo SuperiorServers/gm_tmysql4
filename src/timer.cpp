@@ -1,3 +1,5 @@
+#ifdef ENABLE_TIMER
+
 #include "timer.h"
 
 #ifndef _WIN32
@@ -40,3 +42,5 @@ double Timer::GetElapsedSeconds()
 	return (double)(currentTick - startTick) / NSEC_PER_SEC;
 #endif
 }
+
+#endif

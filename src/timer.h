@@ -1,3 +1,5 @@
+#ifdef ENABLE_TIMER
+
 #ifndef TMYSQL4_TIMER
 #define TMYSQL4_TIMER
 
@@ -20,5 +22,7 @@ private:
 	LARGE_INTEGER frequency;
 	LARGE_INTEGER startTick;
 };
+
+#endif
 
 #endif
