@@ -6,18 +6,18 @@ ifndef config
 endif
 export config
 
-PROJECTS := gm_tmysql4
+PROJECTS := tmysql4
 
 .PHONY: all clean help $(PROJECTS)
 
 all: $(PROJECTS)
 
-gm_tmysql4: 
-	@echo "==== Building gm_tmysql4 ($(config)) ===="
-	@${MAKE} --no-print-directory -C . -f gm_tmysql4.make
+tmysql4: 
+	@echo "==== Building tmysql4 ($(config)) ===="
+	@${MAKE} --no-print-directory -C . -f tmysql4.make
 
 clean:
-	@${MAKE} --no-print-directory -C . -f gm_tmysql4.make clean
+	@${MAKE} --no-print-directory -C . -f tmysql4.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -28,6 +28,6 @@ help:
 	@echo "TARGETS:"
 	@echo "   all (default)"
 	@echo "   clean"
-	@echo "   gm_tmysql4"
+	@echo "   tmysql4"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"
