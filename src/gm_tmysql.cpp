@@ -252,7 +252,7 @@ int DBIsConnected(lua_State* state)
 	}
 
 	LUA->PushBool(mysqldb->IsConnected());
-	return 0;
+	return 1;
 }
 
 int DBDisconnect(lua_State* state)
