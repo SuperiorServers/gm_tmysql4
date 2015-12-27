@@ -1,30 +1,38 @@
 -- bjam release address-model=32 runtime-link=static --with-system --with-thread --with-date_time --with-regex --with-serialization stage
 
-local boost = "/media/jake/storage/Documents/Developer/boost_1_59_0/"
-if os.get() == "windows" then
-	boost = "D:/Documents/Developer/boost_1_59_0"
+local osname = os.get()
+local dllname = osname
+
+if dllname == "windows" then
+	dllname = "win32"
 end
+
+local boost = {
+	["linux"] = "/media/jake/storage/Documents/Developer/boost_1_59_0/",
+	["windows"] = "D:/Documents/Developer/boost_1_59_0",
+}
+local boostinclude = boost[osname]
 
 solution "tmysql4"
 
 	language "C++"
-	location ( os.get() .."-".. _ACTION )
+	location ( osname .."-".. _ACTION )
 	flags { "Symbols", "NoEditAndContinue", "NoPCH", "StaticRuntime", "EnableSSE" }
-	targetdir ( "bin/" .. os.get() .. "/" )
-	includedirs { "include/GarrysMod", "include/" .. os.get(), boost }
+	targetdir ( "bin/" .. osname .. "/" )
+	includedirs { "include/GarrysMod", "include/" .. osname, boostinclude }
 	platforms{ "x32" }
-	libdirs { "library/" .. os.get(), boost .. "/stage/lib" }
+	libdirs { "library/" .. osname, boostinclude .. "/stage/lib" }
 
 	targetprefix ("gmsv_")
 	targetname(solution().name)
-	targetsuffix("_" .. os.get())
+	targetsuffix("_" .. dllname)
 	targetextension ".dll"
 
-	if os.get() == "windows" then
+	if osname == "windows" then
 		links { "mysqlclient" }
-	elseif os.get() == "linux" then
+	elseif osname == "linux" then
 		links { "mysqlclient", "boost_system", "rt" }
-	else error( "unknown os: " .. os.get() ) end
+	else error( "unknown os: " .. osname ) end
 	
 	configurations
 	{ 
@@ -32,7 +40,7 @@ solution "tmysql4"
 	}
 	
 	configuration "Release"
-		if os.get() == "linux" then
+		if osname == "linux" then
 			buildoptions { "-std=c++0x -pthread -Wl,-z,defs" }
 		end
 		defines { "NDEBUG" }
