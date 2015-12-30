@@ -40,6 +40,8 @@ int create(lua_State* state)
 {
 	Database* mysqldb = makeDatabase(state);
 
+	if (!mysqldb) return 0;
+
 	UserData* userdata = (UserData*)LUA->NewUserdata(sizeof(UserData));
 	userdata->data = mysqldb;
 	userdata->type = DATABASE_ID;
@@ -61,6 +63,8 @@ int create(lua_State* state)
 int initialize(lua_State* state)
 {
 	Database* mysqldb = makeDatabase(state);
+	
+	if (!mysqldb) return 0;
 	
 	std::string error;
 	if (!mysqldb->Initialize( error ))
