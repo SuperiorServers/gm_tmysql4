@@ -23,7 +23,7 @@ Database* makeDatabase(lua_State* state)
 	int port = 3306;
 
 	if (LUA->IsType(5, Type::NUMBER))
-		port = (int) LUA->GetNumber(5);
+		port = (int)LUA->GetNumber(5);
 
 	return new Database(
 		host,
@@ -32,7 +32,7 @@ Database* makeDatabase(lua_State* state)
 		db,
 		port,
 		LUA->GetString(6),
-		(int) LUA->GetNumber(7)
+		(int)LUA->GetNumber(7)
 	);
 }
 
@@ -47,7 +47,7 @@ int create(lua_State* state)
 	userdata->type = DATABASE_ID;
 
 	int uData = LUA->ReferenceCreate();
-	
+
 	LUA->ReferencePush(iRefDatabases);
 	LUA->PushNumber(mysqldb->GetTableIndex());
 	LUA->ReferencePush(uData);
@@ -63,13 +63,13 @@ int create(lua_State* state)
 int initialize(lua_State* state)
 {
 	Database* mysqldb = makeDatabase(state);
-	
+
 	if (!mysqldb) return 0;
-	
+
 	std::string error;
-	if (!mysqldb->Initialize( error ))
+	if (!mysqldb->Initialize(error))
 	{
-		LUA->PushBool( false );
+		LUA->PushBool(false);
 		LUA->PushString(error.c_str());
 		delete mysqldb;
 		return 2;
@@ -103,15 +103,14 @@ int DBEscape(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Escape on a shutdown database");
 		return 0;
 	}
 
-	if ( !mysqldb->IsConnected() ) {
+	if (!mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call Escape on a disconnected database");
 		return 0;
 	}
@@ -119,10 +118,10 @@ int DBEscape(lua_State* state)
 	LUA->CheckType(2, Type::STRING);
 
 	unsigned int len;
-	const char* query = LUA->GetString( 2, &len );
+	const char* query = LUA->GetString(2, &len);
 
-	char* escaped = mysqldb->Escape( query, len );
-	LUA->PushString( escaped );
+	char* escaped = mysqldb->Escape(query, len);
+	LUA->PushString(escaped);
 
 	delete[] escaped;
 	return 1;
@@ -132,17 +131,16 @@ int DBOption(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Option on a shutdown database");
 		return 0;
 	}
 
 	std::string error;
 
-	mysql_option option = static_cast<mysql_option>((int) LUA->CheckNumber(2));
+	mysql_option option = static_cast<mysql_option>((int)LUA->CheckNumber(2));
 
 	LUA->PushBool(mysqldb->Option(option, LUA->CheckString(3), error));
 	LUA->PushString(error.c_str());
@@ -153,15 +151,14 @@ int DBGetServerInfo(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call GetServerInfo on a shutdown database");
 		return 0;
 	}
 
-	if ( !mysqldb->IsConnected() ) {
+	if (!mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call GetServerInfo on a disconnected database");
 		return 0;
 	}
@@ -174,15 +171,14 @@ int DBGetHostInfo(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call GetHostInfo on a shutdown database");
 		return 0;
 	}
 
-	if ( !mysqldb->IsConnected() ) {
+	if (!mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call GetHostInfo on a disconnected database");
 		return 0;
 	}
@@ -195,15 +191,14 @@ int DBGetServerVersion(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call GetServerVersion on a shutdown database");
 		return 0;
 	}
 
-	if ( !mysqldb->IsConnected() ) {
+	if (!mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call GetServerVersion on a disconnected database");
 		return 0;
 	}
@@ -216,15 +211,14 @@ int DBConnect(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
 	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Connect on a shutdown database");
 		return 0;
 	}
 
-	if ( mysqldb->IsConnected() ) {
+	if (mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call Connect on an already connected database");
 		return 0;
 	}
@@ -247,8 +241,7 @@ int DBIsConnected(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
 	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call IsConnected on a shutdown database");
@@ -263,8 +256,7 @@ int DBDisconnect(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
 	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Disconnect on a shutdown database");
@@ -272,13 +264,12 @@ int DBDisconnect(lua_State* state)
 	}
 
 	LUA->ReferencePush(iRefDatabases);
-		LUA->PushNumber(mysqldb->GetTableIndex());
-		LUA->PushNil();
+	LUA->PushNumber(mysqldb->GetTableIndex());
+	LUA->PushNil();
 	LUA->SetTable(-3);
 
 	DisconnectDB(state, mysqldb);
 
-	userdata->data = NULL;
 	return 0;
 }
 
@@ -286,15 +277,14 @@ int DBSetCharacterSet(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call SetCharacterSet on a shutdown database");
 		return 0;
 	}
 
-	if ( !mysqldb->IsConnected() ) {
+	if (!mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call SetCharacterSet on a disconnected database");
 		return 0;
 	}
@@ -311,15 +301,14 @@ int DBQuery(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
-	if ( !mysqldb ) {
+	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Query on a shutdown database");
 		return 0;
 	}
 
-	if ( !mysqldb->IsConnected() ) {
+	if (!mysqldb->IsConnected()) {
 		LUA->ThrowError("Attempted to call Query on a disconnected database");
 		return 0;
 	}
@@ -341,7 +330,7 @@ int DBQuery(lua_State* state)
 		callbackref = LUA->ReferenceCreate();
 	}
 
-	mysqldb->QueueQuery( query, callbackfunc, callbackref, LUA->GetBool(5) );
+	mysqldb->QueueQuery(query, callbackfunc, callbackref, LUA->GetBool(5));
 	return 0;
 }
 
@@ -349,8 +338,7 @@ int DBPoll(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
-	UserData* userdata = (UserData*)LUA->GetUserdata(1);
-	Database* mysqldb = (Database*)userdata->data;
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
 
 	if (!mysqldb) {
 		LUA->ThrowError("Attempted to call Poll on a shutdown database");
@@ -362,7 +350,7 @@ int DBPoll(lua_State* state)
 }
 
 /*
-	TMYSQL STUFFS
+TMYSQL STUFFS
 */
 
 int PollAll(lua_State* state)
@@ -376,8 +364,7 @@ int PollAll(lua_State* state)
 
 		if (LUA->IsType(-2, DATABASE_ID))
 		{
-			UserData* userdata = (UserData*)LUA->GetUserdata(-2);
-			Database *mysqldb = (Database*)userdata->data;
+			Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(-2));
 
 			if (mysqldb)
 				DispatchCompletedQueries(state, mysqldb);
@@ -389,7 +376,7 @@ int PollAll(lua_State* state)
 	return 0;
 }
 
-void DisconnectDB(lua_State* state,  Database* mysqldb )
+void DisconnectDB(lua_State* state, Database* mysqldb)
 {
 	if (mysqldb)
 	{
@@ -478,7 +465,7 @@ void PopulateTableFromResult(lua_State* state, MYSQL_RES* result, bool usenumber
 		for (unsigned int i = 0; i < field_count; i++)
 		{
 			if (usenumbers == true)
-				LUA->PushNumber(i+1);
+				LUA->PushNumber(i + 1);
 
 			if (row[i] == NULL)
 				LUA->PushNil();
@@ -509,7 +496,7 @@ void PopulateTableFromQuery(lua_State* state, Query* query)
 		Result* result = *it;
 
 		LUA->PushNumber(resultid++);
-		
+
 		LUA->CreateTable();
 		{
 			bool status = result->GetErrorID() == 0;
@@ -520,7 +507,8 @@ void PopulateTableFromQuery(lua_State* state, Query* query)
 				LUA->SetField(-2, "error");
 				LUA->PushNumber(result->GetErrorID());
 				LUA->SetField(-2, "errorid");
-			} else {
+			}
+			else {
 				LUA->PushNumber(result->GetAffected());
 				LUA->SetField(-2, "affected");
 				LUA->PushNumber(result->GetLastID());
@@ -726,6 +714,7 @@ GMOD_MODULE_OPEN()
 	return 0;
 }
 
+
 GMOD_MODULE_CLOSE()
 {
 	in_shutdown = true;
@@ -739,8 +728,7 @@ GMOD_MODULE_CLOSE()
 
 		if (LUA->IsType(-2, DATABASE_ID))
 		{
-			UserData* userdata = (UserData*)LUA->GetUserdata(-2);
-			Database *mysqldb = (Database*)userdata->data;
+			Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(-2));
 
 			if (mysqldb)
 				DisconnectDB(state, mysqldb);
