@@ -433,8 +433,12 @@ void HandleQueryCallback(lua_State* state, Query* query)
 	// For some reason PCall crashes during shutdown??
 	if (LUA->PCall(args, 0, 0) != 0)
 	{
-		const char* err = LUA->GetString(-1);
-		LUA->ThrowError(err);
+		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		LUA->GetField(-1, "ErrorNoHalt"); // could cache this function... but this really should not be called in the first place
+		LUA->Push(-3); // This is the error message from PCall
+		LUA->PushString("\n"); // add a newline since ErrorNoHalt does not do that itself
+		LUA->Call(2, 0);
+		LUA->Pop(2); // Pop twice since the PCall error is still on the stack
 	}
 }
 
