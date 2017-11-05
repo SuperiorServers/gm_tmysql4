@@ -1,5 +1,13 @@
 # gm_tmysql4
 
+## Building
+[Boost](http://www.boost.org/) is the only extra thing needed to compile this module. It takes several gigs of storage.
+
+Download their latest release and unzip. Inside the folder there's a shell script called bootstrap. Run this with include directories as an argument. Visual Studio users get a free pass here as opening the developer command prompt will allow you to run bootstrap.bat right out and everything will be good to go. Once this process completes, run the b2 executable that gets created.
+
+This will take a while. Once it completes, add the proper include and lib directories to the project and you're good to go.
+
+
 ## Documentation
 
 ##### Creating a connection
