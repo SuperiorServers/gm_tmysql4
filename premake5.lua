@@ -1,6 +1,6 @@
 -- bjam release address-model=32 runtime-link=static --with-system --with-thread --with-date_time --with-regex --with-serialization stage
 
-local osname = os.target()
+local osname = os.get()
 local dllname = osname
 
 if dllname == "windows" then
@@ -8,14 +8,12 @@ if dllname == "windows" then
 end
 
 solution "tmysql4"
+
 	language "C++"
 	location ( osname .."-".. _ACTION )
-	symbols "On"
-	editandcontinue "Off"
-	vectorextensions "SSE"
-	flags {"NoPCH", "StaticRuntime"}
+	flags { "Symbols", "NoEditAndContinue", "NoPCH", "StaticRuntime", "EnableSSE" }
 	targetdir ( "bin/" .. osname .. "/" )
-	includedirs { "include/GarrysMod", "include/" .. osname, "include/boost" }
+	includedirs { "include/GarrysMod", "include/" .. osname }
 	platforms{ "x32" }
 	libdirs { "library/" .. osname }
 
@@ -36,12 +34,11 @@ solution "tmysql4"
 	}
 	
 	configuration "Release"
-		optimize "On"
-		floatingpoint "Fast"
 		if osname == "linux" then
 			buildoptions { "-std=c++0x -pthread -Wl,-z,defs" }
 		end
 		defines { "NDEBUG" }
+		flags{ "Optimize", "FloatFast" }
 	
 	project "tmysql4"
 		defines { "GMMODULE", "ENABLE_QUERY_TIMERS" }
