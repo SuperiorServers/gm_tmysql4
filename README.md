@@ -4,7 +4,7 @@
 
 ##### Creating a connection
 ``` lua
-Database connection, String error = tmysql.initialize( String hostname, String username, String password, String database, Number port, String unixSocketPath, Number ClientFlags )
+Database connection, String error = tmysql.initialize( String hostname, String username, String password, String database, Number port, String unixSocketPath, Number ClientFlags, Function ConnectCallback)
 ```
 
 ##### Escaping a String
