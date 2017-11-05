@@ -131,7 +131,7 @@ public:
 class Database
 {
 public:
-	Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags);
+	Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags, int callbackfunc);
 	~Database(void);
 
 	bool			Initialize(std::string& error);
@@ -139,6 +139,7 @@ public:
 	std::size_t		RunShutdownWork(void);
 	void			Release(void);
 
+	int				GetCallback() { return m_iCallback; }
 	const char*		GetDatabase(void) { return m_strDB.c_str(); }
 	bool			SetCharacterSet(const char* charset, std::string& error);
 	char*			Escape(const char* query, unsigned int len);
@@ -152,15 +153,21 @@ public:
 
 	bool			IsConnected(void) { return m_bIsConnected; };
 
+	bool			IsPendingCallback() { return m_bIsPendingCallback; }
+	void			MarkCallbackCalled() { m_bIsPendingCallback = false; }
+
 	Query*			GetCompletedQueries();
 
 private:
 	bool		Connect(MYSQL* mysql, std::string& error);
+	bool		ConnectInternal(MYSQL* mysql);
 
 	void		QueueQuery(Query* query);
 
 	void		DoExecute(Query* query);
 	void		PushCompleted(Query* query);
+
+	void		MarkCallbackPending() { m_bIsPendingCallback = true; }
 
 	MYSQL* GetAvailableConnection()
 	{
@@ -188,6 +195,7 @@ private:
 	std::auto_ptr<asio::io_service::work> work;
 
 	bool				m_bIsConnected;
+	bool				m_bIsPendingCallback;
 
 	std::string			m_strHost;
 	std::string			m_strUser;
@@ -196,6 +204,7 @@ private:
 	int					m_iPort;
 	std::string			m_strSocket;
 	int					m_iClientFlags;
+	int					m_iCallback;
 
 	int					m_iTableIndex;
 };

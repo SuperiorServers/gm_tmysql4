@@ -7,13 +7,16 @@ using namespace GarrysMod::Lua;
 
 int iRefDatabases;
 
+void PushDatabaseHandle(lua_State* state, Database* mysqldb);
 void DisconnectDB(lua_State* state, Database* mysqldb);
 void DispatchCompletedQueries(lua_State* state, Database* mysqldb);
+void HandleConnectCallback(lua_State* state, Database* db);
 void HandleQueryCallback(lua_State* state, Query* query);
 void PopulateTableFromQuery(lua_State* state, Query* query);
 
 bool in_shutdown = false;
 
+// usage: host, user, pass, db, [port], [socket], [flags], [callback]
 Database* makeDatabase(lua_State* state)
 {
 	const char* host = LUA->CheckString(1);
@@ -25,6 +28,13 @@ Database* makeDatabase(lua_State* state)
 	if (LUA->IsType(5, Type::NUMBER))
 		port = (int)LUA->GetNumber(5);
 
+	int callbackfunc = -1;
+	if (LUA->GetType(8) == Type::FUNCTION)
+	{
+		LUA->Push(8);
+		callbackfunc = LUA->ReferenceCreate();
+	}
+
 	return new Database(
 		host,
 		user,
@@ -32,8 +42,25 @@ Database* makeDatabase(lua_State* state)
 		db,
 		port,
 		LUA->GetString(6),
-		(int)LUA->GetNumber(7)
+		(int)LUA->GetNumber(7),
+		callbackfunc
 	);
+}
+
+void PushDatabaseHandle(lua_State* state, Database* mysqldb)
+{
+	UserData* userdata = (UserData*)LUA->NewUserdata(sizeof(UserData));
+	userdata->data = mysqldb;
+	userdata->type = DATABASE_ID;
+
+	LUA->ReferencePush(iRefDatabases);
+	LUA->PushNumber(mysqldb->GetTableIndex());
+	LUA->Push(-3);
+	LUA->SetTable(-3);
+	LUA->Pop();
+
+	LUA->CreateMetaTableType(DATABASE_NAME, DATABASE_ID);
+	LUA->SetMetaTable(-2);
 }
 
 int create(lua_State* state)
@@ -46,17 +73,8 @@ int create(lua_State* state)
 	userdata->data = mysqldb;
 	userdata->type = DATABASE_ID;
 
-	int uData = LUA->ReferenceCreate();
+	PushDatabaseHandle(state, mysqldb);
 
-	LUA->ReferencePush(iRefDatabases);
-	LUA->PushNumber(mysqldb->GetTableIndex());
-	LUA->ReferencePush(uData);
-	LUA->SetTable(-3);
-
-	LUA->ReferencePush(uData);
-	LUA->ReferenceFree(uData);
-	LUA->CreateMetaTableType(DATABASE_NAME, DATABASE_ID);
-	LUA->SetMetaTable(-2);
 	return 1;
 }
 
@@ -75,21 +93,8 @@ int initialize(lua_State* state)
 		return 2;
 	}
 
-	UserData* userdata = (UserData*)LUA->NewUserdata(sizeof(UserData));
-	userdata->data = mysqldb;
-	userdata->type = DATABASE_ID;
+	PushDatabaseHandle(state, mysqldb);
 
-	int uData = LUA->ReferenceCreate();
-
-	LUA->ReferencePush(iRefDatabases);
-	LUA->PushNumber(mysqldb->GetTableIndex());
-	LUA->ReferencePush(uData);
-	LUA->SetTable(-3);
-
-	LUA->ReferencePush(uData);
-	LUA->ReferenceFree(uData);
-	LUA->CreateMetaTableType(DATABASE_NAME, DATABASE_ID);
-	LUA->SetMetaTable(-2);
 	return 1;
 }
 
@@ -345,6 +350,9 @@ int DBPoll(lua_State* state)
 		return 0;
 	}
 
+	if (mysqldb->IsPendingCallback())
+		HandleConnectCallback(state, mysqldb);
+
 	DispatchCompletedQueries(state, mysqldb);
 	return 0;
 }
@@ -367,7 +375,12 @@ int PollAll(lua_State* state)
 			Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(-2));
 
 			if (mysqldb)
+			{
+				if (mysqldb->IsPendingCallback())
+					HandleConnectCallback(state, mysqldb);
+
 				DispatchCompletedQueries(state, mysqldb);
+			}
 		}
 
 		LUA->Pop(2);
@@ -404,6 +417,35 @@ void DispatchCompletedQueries(lua_State* state, Database* mysqldb)
 
 		completed = query->next;
 		delete query;
+	}
+}
+
+void HandleConnectCallback(lua_State* state, Database* db)
+{
+	db->MarkCallbackCalled();
+
+	if (db->GetCallback() >= 0)
+	{
+		LUA->ReferencePush(db->GetCallback());
+
+		if (!LUA->IsType(-1, Type::FUNCTION))
+		{
+			LUA->Pop();
+			return;
+		}
+
+		// Push database handle
+		PushDatabaseHandle(state, db);
+
+		if (LUA->PCall(1, 0, 0))
+		{
+			LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+			LUA->GetField(-1, "ErrorNoHalt"); // could cache this function... but this really should not be called in the first place
+			LUA->Push(-3); // This is the error message from PCall
+			LUA->PushString("\n"); // add a newline since ErrorNoHalt does not do that itself
+			LUA->Call(2, 0);
+			LUA->Pop(2); // Pop twice since the PCall error is still on the stack
+		}
 	}
 }
 

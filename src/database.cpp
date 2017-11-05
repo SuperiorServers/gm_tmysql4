@@ -1,8 +1,10 @@
 #include "gm_tmysql.h"
 
+using namespace GarrysMod::Lua;
+
 unsigned int database_index = 1;
 
-Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags)
+Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags, int callback)
 {
 	m_strHost.assign(host);
 	m_strUser.assign(user);
@@ -11,6 +13,7 @@ Database::Database(const char* host, const char* user, const char* pass, const c
 	m_iPort = port;
 	m_strSocket.assign(socket != NULL ? socket : "");
 	m_iClientFlags = flags;
+	m_iCallback = callback;
 	m_pEscapeConnection = NULL;
 	m_bIsConnected = false;
 	m_iTableIndex = database_index++;
@@ -51,11 +54,23 @@ bool Database::Initialize(std::string& error)
 
 bool Database::Connect(MYSQL* mysql, std::string& error)
 {
-	if (!mysql_real_connect(mysql, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, m_strSocket.c_str(), m_iClientFlags))
+	if (!ConnectInternal(mysql))
 	{
 		error.assign(mysql_error(mysql));
 		return false;
 	}
+
+	return true;
+}
+
+bool Database::ConnectInternal(MYSQL* mysql)
+{
+	if (!mysql_real_connect(mysql, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, m_strSocket.c_str(), m_iClientFlags))
+	{
+		return false;
+	}
+
+	MarkCallbackPending();
 
 	return true;
 }
@@ -202,7 +217,7 @@ void Database::DoExecute(Query* query)
 		mysql_close(pMYSQL);
 		pMYSQL = mysql_init(NULL);
 
-		mysql_real_connect(pMYSQL, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, m_strSocket.c_str(), m_iClientFlags);
+		ConnectInternal(pMYSQL);
 	}
 
 	mysql_real_query(pMYSQL, strquery, len);
