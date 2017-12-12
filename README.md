@@ -1,12 +1,17 @@
 # gm_tmysql4
 
-## Building
-[Boost](http://www.boost.org/) is the only extra thing needed to compile this module. It takes several gigs of storage.
+## Building - **Boost is no longer a dependency!**
+1. Pull the [asio](https://github.com/chriskohlhoff/asio/) submodule using `git submodule update --init`
+2. Run the batch/shell file to generate project files
+3. Build!
 
-Download their latest release and unzip. Inside the folder there's a shell script called bootstrap. Run this with include directories as an argument. Visual Studio users get a free pass here as opening the developer command prompt will allow you to run bootstrap.bat right out and everything will be good to go. Once this process completes, run the b2 executable that gets created.
+gmsv_tmysql should compile out of the box for both Visual Studio and GCC on Linux.
 
-This will take a while. Once it completes, add the proper include and lib directories to the project and you're good to go.
+On Linux, make sure the compiler is using the C++11 standard library. You should be linking directly to libmysqlclient.a as well.
 
+On Windows, make sure the module is compiling at multi-threaded (/MT flag) and that libmysqlclient is being linked statically (the dll file should be 3-4mb, not 300-400kb.)
+
+For any other issues, just verify all include directories are properly set up.
 
 ## Documentation
 
