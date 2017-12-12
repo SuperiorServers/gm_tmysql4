@@ -8,9 +8,6 @@
 
 using namespace boost;
 
-#define NUM_THREADS_DEFAULT 2
-#define NUM_CON_DEFAULT NUM_THREADS_DEFAULT
-
 // From the boost atomic examples
 template<typename T>
 class waitfree_query_queue {
@@ -159,36 +156,16 @@ public:
 	Query*			GetCompletedQueries();
 
 private:
-	bool		Connect(MYSQL* mysql, std::string& error);
-	bool		ConnectInternal(MYSQL* mysql);
-
-	void		QueueQuery(Query* query);
+	bool		Connect(std::string& error);
 
 	void		DoExecute(Query* query);
 	void		PushCompleted(Query* query);
 
 	void		MarkCallbackPending() { m_bIsPendingCallback = true; }
 
-	MYSQL* GetAvailableConnection()
-	{
-		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
-		MYSQL* result = m_vecAvailableConnections.front();
-		m_vecAvailableConnections.pop_front();
-		return result;
-	}
-
-	void ReturnConnection(MYSQL* mysql)
-	{
-		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
-		m_vecAvailableConnections.push_back(mysql);
-	}
-
-	MYSQL*	m_pEscapeConnection;
+	MYSQL*		m_MySQL;
 
 	waitfree_query_queue<Query> m_completedQueries;
-	std::deque< MYSQL* > m_vecAvailableConnections;
-
-	mutable std::recursive_mutex m_Mutex;
 
 	std::vector<std::thread> thread_group;
 	asio::io_service io_service;

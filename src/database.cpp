@@ -14,7 +14,7 @@ Database::Database(std::string host, std::string user, std::string pass, std::st
 	m_strSocket.assign(socket);
 	m_iClientFlags = flags;
 	m_iCallback = callback;
-	m_pEscapeConnection = NULL;
+	m_MySQL = NULL;
 	m_bIsConnected = false;
 	m_iTableIndex = database_index++;
 	work.reset(new asio::io_service::work(io_service));
@@ -26,49 +26,38 @@ Database::~Database( void )
 
 bool Database::Initialize(std::string& error)
 {
-	for (int i = NUM_CON_DEFAULT+1; i; i--)
+	m_MySQL = mysql_init(nullptr);
+
+	if (m_MySQL == NULL)
 	{
-		MYSQL* mysql = mysql_init(nullptr);
-
-		if (!Connect(mysql, error))
-			return false;
-
-		if (i > NUM_CON_DEFAULT)
-			m_pEscapeConnection = mysql;
-		else
-			m_vecAvailableConnections.push_back(mysql);
+		error.assign("Out of memory!");
+		return false;
 	}
 
-	for (unsigned int i = 0; i < NUM_THREADS_DEFAULT; ++i)
-	{
-		thread_group.push_back(std::thread(
-			[&]()
-		{
-			io_service.run();
-		}));
-	}
+	if (!Connect(error))
+		return false;
+
+	thread_group.push_back(std::thread( [&]() { io_service.run(); } ));
 
 	m_bIsConnected = true;
 	return true;
 }
 
-bool Database::Connect(MYSQL* mysql, std::string& error)
+bool Database::Connect(std::string& error)
 {
-	if (!ConnectInternal(mysql))
+	const char* socket = (m_strSocket.length() == 0) ? nullptr : m_strSocket.c_str();
+	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
+
+	my_bool tru = 1;
+	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &tru) > 0)
 	{
-		error.assign(mysql_error(mysql));
+		error.assign(mysql_error(m_MySQL));
 		return false;
 	}
 
-	return true;
-}
-
-bool Database::ConnectInternal(MYSQL* mysql)
-{
-	const char* socket = (m_strSocket.length() == 0) ? nullptr : m_strSocket.c_str();
-
-	if (mysql_real_connect(mysql, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, socket, m_iClientFlags) != mysql)
+	if (mysql_real_connect(m_MySQL, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, socket, flags) != m_MySQL)
 	{
+		error.assign(mysql_error(m_MySQL));
 		return false;
 	}
 
@@ -82,9 +71,7 @@ void Database::Shutdown(void)
 	work.reset();
 
 	for (auto iter = thread_group.begin(); iter != thread_group.end(); ++iter)
-	{
 		iter->join();
-	}
 
 	assert(io_service.stopped());
 }
@@ -99,17 +86,10 @@ void Database::Release(void)
 {
 	assert(io_service.stopped());
 
-	for (auto iter = m_vecAvailableConnections.begin(); iter != m_vecAvailableConnections.end(); ++iter)
+	if (m_MySQL != NULL)
 	{
-		mysql_close(*iter);
-	}
-
-	m_vecAvailableConnections.clear();
-
-	if (m_pEscapeConnection != NULL)
-	{
-		mysql_close(m_pEscapeConnection);
-		m_pEscapeConnection = NULL;
+		mysql_close(m_MySQL);
+		m_MySQL = NULL;
 	}
 
 	m_bIsConnected = false;
@@ -118,27 +98,16 @@ void Database::Release(void)
 char* Database::Escape(const char* query, unsigned int len)
 {
 	char* escaped = new char[len * 2 + 1];
-	mysql_real_escape_string(m_pEscapeConnection, escaped, query, len);
+	mysql_real_escape_string(m_MySQL, escaped, query, len);
 	return escaped;
 }
 
 bool Database::Option(mysql_option option, const char* arg, std::string& error)
 {
-	std::lock_guard<std::recursive_mutex> guard(m_Mutex);
-
-	if (mysql_options(m_pEscapeConnection, option, arg) > 0)
+	if (mysql_options(m_MySQL, option, arg) > 0)
 	{
-		error.assign(mysql_error(m_pEscapeConnection));
+		error.assign(mysql_error(m_MySQL));
 		return false;
-	}
-
-	for (auto iter = m_vecAvailableConnections.begin(); iter != m_vecAvailableConnections.end(); ++iter)
-	{
-		if (mysql_options(*iter, option, arg) > 0)
-		{
-			error.assign(mysql_error(*iter));
-			return false;
-		}
 	}
 
 	return true;
@@ -146,36 +115,25 @@ bool Database::Option(mysql_option option, const char* arg, std::string& error)
 
 const char* Database::GetServerInfo()
 {
-	return mysql_get_server_info(m_pEscapeConnection);
+	return mysql_get_server_info(m_MySQL);
 }
 
 const char* Database::GetHostInfo()
 {
-	return mysql_get_host_info(m_pEscapeConnection);
+	return mysql_get_host_info(m_MySQL);
 }
 
 int Database::GetServerVersion()
 {
-	return mysql_get_server_version(m_pEscapeConnection);
+	return mysql_get_server_version(m_MySQL);
 }
 
 bool Database::SetCharacterSet(const char* charset, std::string& error)
 {
-	std::lock_guard<std::recursive_mutex> guard(m_Mutex);
-
-	if (mysql_set_character_set(m_pEscapeConnection, charset) > 0)
+	if (mysql_set_character_set(m_MySQL, charset) > 0)
 	{
-		error.assign(mysql_error(m_pEscapeConnection));
+		error.assign(mysql_error(m_MySQL));
 		return false;
-	}
-
-	for (auto iter = m_vecAvailableConnections.begin(); iter != m_vecAvailableConnections.end(); ++iter)
-	{
-		if (mysql_set_character_set(*iter, charset) > 0)
-		{
-			error.assign(mysql_error(*iter));
-			return false;
-		}
 	}
 
 	return true;
@@ -184,12 +142,7 @@ bool Database::SetCharacterSet(const char* charset, std::string& error)
 void Database::QueueQuery(const char* query, int callback, int callbackref, bool usenumbers)
 {
 	Query* newquery = new Query(query, callback, callbackref, usenumbers);
-	QueueQuery(newquery);
-}
-
-void Database::QueueQuery(Query* query)
-{
-	io_service.post(std::bind(&Database::DoExecute, this, query));
+	io_service.post(std::bind(&Database::DoExecute, this, newquery));
 }
 
 Query* Database::GetCompletedQueries()
@@ -204,43 +157,27 @@ void Database::PushCompleted(Query* query)
 
 void Database::DoExecute(Query* query)
 {
-	MYSQL* pMYSQL = GetAvailableConnection();
-
 	const char* strquery = query->GetQuery().c_str();
 	size_t len = query->GetQueryLength();
 
-	int err = mysql_ping(pMYSQL);
-
-	if (err > 0)
-	{
-		// Attempt reconnect if connection is lost, once chance, one opportunity per query call
-		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
-		
-		mysql_close(pMYSQL);
-		pMYSQL = mysql_init(nullptr);
-
-		ConnectInternal(pMYSQL);
-	}
-
-	mysql_real_query(pMYSQL, strquery, len);
+	mysql_real_query(m_MySQL, strquery, len);
 	
 	int status = 0;
 	while (status != -1) {
-		MYSQL_RES* pResult = mysql_store_result(pMYSQL);
-		unsigned int errorno = mysql_errno(pMYSQL);
+		MYSQL_RES* pResult = mysql_store_result(m_MySQL);
+		unsigned int errorno = mysql_errno(m_MySQL);
 
 		Result* result = new Result();
 		{
 			result->SetResult(pResult);
 			result->SetErrorID(errorno);
-			result->SetError(mysql_error(pMYSQL));
-			result->SetAffected((double)mysql_affected_rows(pMYSQL));
-			result->SetLastID((double)mysql_insert_id(pMYSQL));
+			result->SetError(mysql_error(m_MySQL));
+			result->SetAffected((double)mysql_affected_rows(m_MySQL));
+			result->SetLastID((double)mysql_insert_id(m_MySQL));
 		}
 		query->AddResult(result);
-		status = mysql_next_result(pMYSQL);
+		status = mysql_next_result(m_MySQL);
 	}
 
 	PushCompleted(query);
-	ReturnConnection(pMYSQL);
 }
