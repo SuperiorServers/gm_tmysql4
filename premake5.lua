@@ -13,7 +13,7 @@ solution "tmysql4"
 	location ( osname .."-".. _ACTION )
 	flags { "Symbols", "NoEditAndContinue", "NoPCH", "StaticRuntime", "EnableSSE" }
 	targetdir ( "bin/" .. osname .. "/" )
-	includedirs { "include/GarrysMod", "include/" .. osname, "include/asio" }
+	includedirs { "include/GarrysMod", "include/" .. osname, "include/asio/asio/include" }
 	platforms{ "x32" }
 	libdirs { "library/" .. osname }
 
