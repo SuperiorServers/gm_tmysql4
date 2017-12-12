@@ -131,7 +131,7 @@ public:
 class Database
 {
 public:
-	Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags, int callbackfunc);
+	Database(std::string host, std::string user, std::string pass, std::string db, unsigned int port, std::string socket, unsigned long flags, int callback);
 	~Database(void);
 
 	bool			Initialize(std::string& error);
@@ -201,9 +201,9 @@ private:
 	std::string			m_strUser;
 	std::string			m_strPass;
 	std::string			m_strDB;
-	int					m_iPort;
+	unsigned int		m_iPort;
 	std::string			m_strSocket;
-	int					m_iClientFlags;
+	unsigned long		m_iClientFlags;
 	int					m_iCallback;
 
 	int					m_iTableIndex;

@@ -4,14 +4,14 @@ using namespace GarrysMod::Lua;
 
 unsigned int database_index = 1;
 
-Database::Database(const char* host, const char* user, const char* pass, const char* db, int port, const char* socket, int flags, int callback)
+Database::Database(std::string host, std::string user, std::string pass, std::string db, unsigned int port, std::string socket, unsigned long flags, int callback)
 {
 	m_strHost.assign(host);
 	m_strUser.assign(user);
 	m_strPass.assign(pass);
 	m_strDB.assign(db);
 	m_iPort = port;
-	m_strSocket.assign(socket != NULL ? socket : "");
+	m_strSocket.assign(socket);
 	m_iClientFlags = flags;
 	m_iCallback = callback;
 	m_pEscapeConnection = NULL;
@@ -28,7 +28,7 @@ bool Database::Initialize(std::string& error)
 {
 	for (int i = NUM_CON_DEFAULT+1; i; i--)
 	{
-		MYSQL* mysql = mysql_init(NULL);
+		MYSQL* mysql = mysql_init(nullptr);
 
 		if (!Connect(mysql, error))
 			return false;
@@ -65,7 +65,9 @@ bool Database::Connect(MYSQL* mysql, std::string& error)
 
 bool Database::ConnectInternal(MYSQL* mysql)
 {
-	if (!mysql_real_connect(mysql, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, m_strSocket.c_str(), m_iClientFlags))
+	const char* socket = (m_strSocket.length() == 0) ? nullptr : m_strSocket.c_str();
+
+	if (mysql_real_connect(mysql, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, socket, m_iClientFlags) != mysql)
 	{
 		return false;
 	}
@@ -215,7 +217,7 @@ void Database::DoExecute(Query* query)
 		std::lock_guard<std::recursive_mutex> guard(m_Mutex);
 		
 		mysql_close(pMYSQL);
-		pMYSQL = mysql_init(NULL);
+		pMYSQL = mysql_init(nullptr);
 
 		ConnectInternal(pMYSQL);
 	}

@@ -19,14 +19,23 @@ bool in_shutdown = false;
 // usage: host, user, pass, db, [port], [socket], [flags], [callback]
 Database* makeDatabase(lua_State* state)
 {
-	const char* host = LUA->CheckString(1);
-	const char* user = LUA->CheckString(2);
-	const char* pass = LUA->CheckString(3);
-	const char* db = LUA->CheckString(4);
-	int port = 3306;
+	std::string host = LUA->CheckString(1);
+	std::string user = LUA->CheckString(2);
+	std::string pass = LUA->CheckString(3);
+	std::string db = LUA->CheckString(4);
+	unsigned int port = 3306;
+	std::string unixSocket = "";
+	unsigned long flags = 0;
 
 	if (LUA->IsType(5, Type::NUMBER))
-		port = (int)LUA->GetNumber(5);
+		port = (unsigned int)LUA->GetNumber(5);
+
+	if (LUA->IsType(6, GarrysMod::Lua::Type::STRING)) {
+		unixSocket = LUA->GetString(6);
+	}
+
+	if (LUA->IsType(7, Type::NUMBER))
+		flags  = (unsigned long)LUA->GetNumber(7);
 
 	int callbackfunc = -1;
 	if (LUA->GetType(8) == Type::FUNCTION)
@@ -41,8 +50,8 @@ Database* makeDatabase(lua_State* state)
 		pass,
 		db,
 		port,
-		LUA->GetString(6),
-		(int)LUA->GetNumber(7),
+		unixSocket,
+		flags,
 		callbackfunc
 	);
 }
