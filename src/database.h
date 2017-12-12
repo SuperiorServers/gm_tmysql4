@@ -1,12 +1,12 @@
+#define ASIO_STANDALONE
+
 #include <deque>
 #include <atomic>
 #include <mutex>
 #include <thread>
 #include <string>
-#include <boost/asio.hpp>
+#include "asio/include/asio.hpp"
 #include "timer.h"
-
-using namespace boost;
 
 // From the boost atomic examples
 template<typename T>
