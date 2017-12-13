@@ -25,6 +25,9 @@ Database:Option -> Database:SetOption
 tmysql.flags
 tmysql.opts
 tmysql.info
+
+-- Added
+tmysql.Version
 ```
 
 ##### Creating a connection
