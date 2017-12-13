@@ -87,7 +87,7 @@ int create(lua_State* state)
 	return 1;
 }
 
-int initialize(lua_State* state)
+int Connect(lua_State* state)
 {
 	Database* mysqldb = makeDatabase(state);
 
@@ -593,132 +593,146 @@ GMOD_MODULE_OPEN()
 
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	{
-		LUA->PushNumber(mysql_get_client_version());
-		LUA->SetField(-2, "MYSQL_VERSION");
-
-		LUA->PushString(mysql_get_client_info());
-		LUA->SetField(-2, "MYSQL_INFO");
-
-		LUA->PushNumber(CLIENT_LONG_PASSWORD);
-		LUA->SetField(-2, "CLIENT_LONG_PASSWORD");
-		LUA->PushNumber(CLIENT_FOUND_ROWS);
-		LUA->SetField(-2, "CLIENT_FOUND_ROWS");
-		LUA->PushNumber(CLIENT_LONG_FLAG);
-		LUA->SetField(-2, "CLIENT_LONG_FLAG");
-		LUA->PushNumber(CLIENT_CONNECT_WITH_DB);
-		LUA->SetField(-2, "CLIENT_CONNECT_WITH_DB");
-		LUA->PushNumber(CLIENT_NO_SCHEMA);
-		LUA->SetField(-2, "CLIENT_NO_SCHEMA");
-		LUA->PushNumber(CLIENT_COMPRESS);
-		LUA->SetField(-2, "CLIENT_COMPRESS");
-		LUA->PushNumber(CLIENT_ODBC);
-		LUA->SetField(-2, "CLIENT_ODBC");
-		LUA->PushNumber(CLIENT_LOCAL_FILES);
-		LUA->SetField(-2, "CLIENT_LOCAL_FILES");
-		LUA->PushNumber(CLIENT_IGNORE_SPACE);
-		LUA->SetField(-2, "CLIENT_IGNORE_SPACE");
-		LUA->PushNumber(CLIENT_TRANSACTIONS);
-		LUA->SetField(-2, "CLIENT_TRANSACTIONS");
-		LUA->PushNumber(CLIENT_RESERVED);
-		LUA->SetField(-2, "CLIENT_RESERVED");
-		LUA->PushNumber(CLIENT_MULTI_STATEMENTS);
-		LUA->SetField(-2, "CLIENT_MULTI_STATEMENTS");
-		LUA->PushNumber(CLIENT_MULTI_RESULTS);
-		LUA->SetField(-2, "CLIENT_MULTI_RESULTS");
-		LUA->PushNumber(CLIENT_PS_MULTI_RESULTS);
-		LUA->SetField(-2, "CLIENT_PS_MULTI_RESULTS");
-
-		LUA->PushNumber(MYSQL_OPT_CONNECT_TIMEOUT);
-		LUA->SetField(-2, "MYSQL_OPT_CONNECT_TIMEOUT");
-		LUA->PushNumber(MYSQL_OPT_COMPRESS);
-		LUA->SetField(-2, "MYSQL_OPT_COMPRESS");
-		LUA->PushNumber(MYSQL_OPT_NAMED_PIPE);
-		LUA->SetField(-2, "MYSQL_OPT_NAMED_PIPE");
-		LUA->PushNumber(MYSQL_INIT_COMMAND);
-		LUA->SetField(-2, "MYSQL_INIT_COMMAND");
-		LUA->PushNumber(MYSQL_READ_DEFAULT_FILE);
-		LUA->SetField(-2, "MYSQL_READ_DEFAULT_FILE");
-		LUA->PushNumber(MYSQL_READ_DEFAULT_GROUP);
-		LUA->SetField(-2, "MYSQL_READ_DEFAULT_GROUP");
-		LUA->PushNumber(MYSQL_SET_CHARSET_DIR);
-		LUA->SetField(-2, "MYSQL_SET_CHARSET_DIR");
-		LUA->PushNumber(MYSQL_SET_CHARSET_NAME);
-		LUA->SetField(-2, "MYSQL_SET_CHARSET_NAME");
-		LUA->PushNumber(MYSQL_OPT_LOCAL_INFILE);
-		LUA->SetField(-2, "MYSQL_OPT_LOCAL_INFILE");
-		LUA->PushNumber(MYSQL_OPT_PROTOCOL);
-		LUA->SetField(-2, "MYSQL_OPT_PROTOCOL");
-		LUA->PushNumber(MYSQL_SHARED_MEMORY_BASE_NAME);
-		LUA->SetField(-2, "MYSQL_SHARED_MEMORY_BASE_NAME");
-		LUA->PushNumber(MYSQL_OPT_READ_TIMEOUT);
-		LUA->SetField(-2, "MYSQL_OPT_READ_TIMEOUT");
-		LUA->PushNumber(MYSQL_OPT_WRITE_TIMEOUT);
-		LUA->SetField(-2, "MYSQL_OPT_WRITE_TIMEOUT");
-		LUA->PushNumber(MYSQL_OPT_USE_RESULT);
-		LUA->SetField(-2, "MYSQL_OPT_USE_RESULT");
-		LUA->PushNumber(MYSQL_OPT_USE_REMOTE_CONNECTION);
-		LUA->SetField(-2, "MYSQL_OPT_USE_REMOTE_CONNECTION");
-		LUA->PushNumber(MYSQL_OPT_USE_EMBEDDED_CONNECTION);
-		LUA->SetField(-2, "MYSQL_OPT_USE_EMBEDDED_CONNECTION");
-		LUA->PushNumber(MYSQL_OPT_GUESS_CONNECTION);
-		LUA->SetField(-2, "MYSQL_OPT_GUESS_CONNECTION");
-		LUA->PushNumber(MYSQL_SET_CLIENT_IP);
-		LUA->SetField(-2, "MYSQL_SET_CLIENT_IP");
-		LUA->PushNumber(MYSQL_SECURE_AUTH);
-		LUA->SetField(-2, "MYSQL_SECURE_AUTH");
-		LUA->PushNumber(MYSQL_REPORT_DATA_TRUNCATION);
-		LUA->SetField(-2, "MYSQL_REPORT_DATA_TRUNCATION");
-		LUA->PushNumber(MYSQL_OPT_RECONNECT);
-		LUA->SetField(-2, "MYSQL_OPT_RECONNECT");
-		LUA->PushNumber(MYSQL_OPT_SSL_VERIFY_SERVER_CERT);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_VERIFY_SERVER_CERT");
-		LUA->PushNumber(MYSQL_PLUGIN_DIR);
-		LUA->SetField(-2, "MYSQL_PLUGIN_DIR");
-		LUA->PushNumber(MYSQL_DEFAULT_AUTH);
-		LUA->SetField(-2, "MYSQL_DEFAULT_AUTH");
-		LUA->PushNumber(MYSQL_OPT_BIND);
-		LUA->SetField(-2, "MYSQL_OPT_BIND");
-		LUA->PushNumber(MYSQL_OPT_SSL_KEY);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_KEY");
-		LUA->PushNumber(MYSQL_OPT_SSL_CERT);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_CERT");
-		LUA->PushNumber(MYSQL_OPT_SSL_CA);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_CA");
-		LUA->PushNumber(MYSQL_OPT_SSL_CAPATH);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_CAPATH");
-		LUA->PushNumber(MYSQL_OPT_SSL_CIPHER);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_CIPHER");
-		LUA->PushNumber(MYSQL_OPT_SSL_CRL);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_CRL");
-		LUA->PushNumber(MYSQL_OPT_SSL_CRLPATH);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_CRLPATH");
-		LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_RESET);
-		LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_RESET");
-		LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_ADD);
-		LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_ADD");
-		LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_DELETE);
-		LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_DELETE");
-		LUA->PushNumber(MYSQL_SERVER_PUBLIC_KEY);
-		LUA->SetField(-2, "MYSQL_SERVER_PUBLIC_KEY");
-		LUA->PushNumber(MYSQL_ENABLE_CLEARTEXT_PLUGIN);
-		LUA->SetField(-2, "MYSQL_ENABLE_CLEARTEXT_PLUGIN");
-		LUA->PushNumber(MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS);
-		LUA->SetField(-2, "MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS");
-		LUA->PushNumber(MYSQL_OPT_SSL_ENFORCE);
-		LUA->SetField(-2, "MYSQL_OPT_SSL_ENFORCE");
-
 		LUA->CreateTable();
 		{
+			LUA->PushNumber(4.1);
+			LUA->SetField(-2, "Version");
+
 			LUA->PushCFunction(create);
 			LUA->SetField(-2, "Create");
-			LUA->PushCFunction(initialize);
-			LUA->SetField(-2, "initialize");
-			LUA->PushCFunction(initialize);
+			LUA->PushCFunction(Connect);
 			LUA->SetField(-2, "Connect");
 			LUA->PushCFunction(GetTable);
 			LUA->SetField(-2, "GetTable");
 			LUA->PushCFunction(PollAll);
 			LUA->SetField(-2, "PollAll");
+
+			LUA->CreateTable();
+			{
+				LUA->PushNumber(mysql_get_client_version());
+				LUA->SetField(-2, "MYSQL_VERSION");
+
+				LUA->PushString(mysql_get_client_info());
+				LUA->SetField(-2, "MYSQL_INFO");
+			}
+			LUA->SetField(-2, "info");
+
+			LUA->CreateTable();
+			{
+				LUA->PushNumber(CLIENT_LONG_PASSWORD);
+				LUA->SetField(-2, "CLIENT_LONG_PASSWORD");
+				LUA->PushNumber(CLIENT_FOUND_ROWS);
+				LUA->SetField(-2, "CLIENT_FOUND_ROWS");
+				LUA->PushNumber(CLIENT_LONG_FLAG);
+				LUA->SetField(-2, "CLIENT_LONG_FLAG");
+				LUA->PushNumber(CLIENT_CONNECT_WITH_DB);
+				LUA->SetField(-2, "CLIENT_CONNECT_WITH_DB");
+				LUA->PushNumber(CLIENT_NO_SCHEMA);
+				LUA->SetField(-2, "CLIENT_NO_SCHEMA");
+				LUA->PushNumber(CLIENT_COMPRESS);
+				LUA->SetField(-2, "CLIENT_COMPRESS");
+				LUA->PushNumber(CLIENT_ODBC);
+				LUA->SetField(-2, "CLIENT_ODBC");
+				LUA->PushNumber(CLIENT_LOCAL_FILES);
+				LUA->SetField(-2, "CLIENT_LOCAL_FILES");
+				LUA->PushNumber(CLIENT_IGNORE_SPACE);
+				LUA->SetField(-2, "CLIENT_IGNORE_SPACE");
+				LUA->PushNumber(CLIENT_TRANSACTIONS);
+				LUA->SetField(-2, "CLIENT_TRANSACTIONS");
+				LUA->PushNumber(CLIENT_RESERVED);
+				LUA->SetField(-2, "CLIENT_RESERVED");
+				LUA->PushNumber(CLIENT_MULTI_STATEMENTS);
+				LUA->SetField(-2, "CLIENT_MULTI_STATEMENTS");
+				LUA->PushNumber(CLIENT_MULTI_RESULTS);
+				LUA->SetField(-2, "CLIENT_MULTI_RESULTS");
+				LUA->PushNumber(CLIENT_PS_MULTI_RESULTS);
+				LUA->SetField(-2, "CLIENT_PS_MULTI_RESULTS");
+			}
+			LUA->SetField(-2, "flags");
+
+			LUA->CreateTable();
+			{
+				LUA->PushNumber(MYSQL_OPT_CONNECT_TIMEOUT);
+				LUA->SetField(-2, "MYSQL_OPT_CONNECT_TIMEOUT");
+				LUA->PushNumber(MYSQL_OPT_COMPRESS);
+				LUA->SetField(-2, "MYSQL_OPT_COMPRESS");
+				LUA->PushNumber(MYSQL_OPT_NAMED_PIPE);
+				LUA->SetField(-2, "MYSQL_OPT_NAMED_PIPE");
+				LUA->PushNumber(MYSQL_INIT_COMMAND);
+				LUA->SetField(-2, "MYSQL_INIT_COMMAND");
+				LUA->PushNumber(MYSQL_READ_DEFAULT_FILE);
+				LUA->SetField(-2, "MYSQL_READ_DEFAULT_FILE");
+				LUA->PushNumber(MYSQL_READ_DEFAULT_GROUP);
+				LUA->SetField(-2, "MYSQL_READ_DEFAULT_GROUP");
+				LUA->PushNumber(MYSQL_SET_CHARSET_DIR);
+				LUA->SetField(-2, "MYSQL_SET_CHARSET_DIR");
+				LUA->PushNumber(MYSQL_SET_CHARSET_NAME);
+				LUA->SetField(-2, "MYSQL_SET_CHARSET_NAME");
+				LUA->PushNumber(MYSQL_OPT_LOCAL_INFILE);
+				LUA->SetField(-2, "MYSQL_OPT_LOCAL_INFILE");
+				LUA->PushNumber(MYSQL_OPT_PROTOCOL);
+				LUA->SetField(-2, "MYSQL_OPT_PROTOCOL");
+				LUA->PushNumber(MYSQL_SHARED_MEMORY_BASE_NAME);
+				LUA->SetField(-2, "MYSQL_SHARED_MEMORY_BASE_NAME");
+				LUA->PushNumber(MYSQL_OPT_READ_TIMEOUT);
+				LUA->SetField(-2, "MYSQL_OPT_READ_TIMEOUT");
+				LUA->PushNumber(MYSQL_OPT_WRITE_TIMEOUT);
+				LUA->SetField(-2, "MYSQL_OPT_WRITE_TIMEOUT");
+				LUA->PushNumber(MYSQL_OPT_USE_RESULT);
+				LUA->SetField(-2, "MYSQL_OPT_USE_RESULT");
+				LUA->PushNumber(MYSQL_OPT_USE_REMOTE_CONNECTION);
+				LUA->SetField(-2, "MYSQL_OPT_USE_REMOTE_CONNECTION");
+				LUA->PushNumber(MYSQL_OPT_USE_EMBEDDED_CONNECTION);
+				LUA->SetField(-2, "MYSQL_OPT_USE_EMBEDDED_CONNECTION");
+				LUA->PushNumber(MYSQL_OPT_GUESS_CONNECTION);
+				LUA->SetField(-2, "MYSQL_OPT_GUESS_CONNECTION");
+				LUA->PushNumber(MYSQL_SET_CLIENT_IP);
+				LUA->SetField(-2, "MYSQL_SET_CLIENT_IP");
+				LUA->PushNumber(MYSQL_SECURE_AUTH);
+				LUA->SetField(-2, "MYSQL_SECURE_AUTH");
+				LUA->PushNumber(MYSQL_REPORT_DATA_TRUNCATION);
+				LUA->SetField(-2, "MYSQL_REPORT_DATA_TRUNCATION");
+				LUA->PushNumber(MYSQL_OPT_RECONNECT);
+				LUA->SetField(-2, "MYSQL_OPT_RECONNECT");
+				LUA->PushNumber(MYSQL_OPT_SSL_VERIFY_SERVER_CERT);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_VERIFY_SERVER_CERT");
+				LUA->PushNumber(MYSQL_PLUGIN_DIR);
+				LUA->SetField(-2, "MYSQL_PLUGIN_DIR");
+				LUA->PushNumber(MYSQL_DEFAULT_AUTH);
+				LUA->SetField(-2, "MYSQL_DEFAULT_AUTH");
+				LUA->PushNumber(MYSQL_OPT_BIND);
+				LUA->SetField(-2, "MYSQL_OPT_BIND");
+				LUA->PushNumber(MYSQL_OPT_SSL_KEY);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_KEY");
+				LUA->PushNumber(MYSQL_OPT_SSL_CERT);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_CERT");
+				LUA->PushNumber(MYSQL_OPT_SSL_CA);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_CA");
+				LUA->PushNumber(MYSQL_OPT_SSL_CAPATH);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_CAPATH");
+				LUA->PushNumber(MYSQL_OPT_SSL_CIPHER);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_CIPHER");
+				LUA->PushNumber(MYSQL_OPT_SSL_CRL);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_CRL");
+				LUA->PushNumber(MYSQL_OPT_SSL_CRLPATH);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_CRLPATH");
+				LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_RESET);
+				LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_RESET");
+				LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_ADD);
+				LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_ADD");
+				LUA->PushNumber(MYSQL_OPT_CONNECT_ATTR_DELETE);
+				LUA->SetField(-2, "MYSQL_OPT_CONNECT_ATTR_DELETE");
+				LUA->PushNumber(MYSQL_SERVER_PUBLIC_KEY);
+				LUA->SetField(-2, "MYSQL_SERVER_PUBLIC_KEY");
+				LUA->PushNumber(MYSQL_ENABLE_CLEARTEXT_PLUGIN);
+				LUA->SetField(-2, "MYSQL_ENABLE_CLEARTEXT_PLUGIN");
+				LUA->PushNumber(MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS);
+				LUA->SetField(-2, "MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS");
+				LUA->PushNumber(MYSQL_OPT_SSL_ENFORCE);
+				LUA->SetField(-2, "MYSQL_OPT_SSL_ENFORCE");
+			}
+			LUA->SetField(-2, "opts");
+
 		}
 		LUA->SetField(-2, "tmysql");
 
@@ -727,7 +741,7 @@ GMOD_MODULE_OPEN()
 			LUA->GetField(-1, "Add");
 			{
 				LUA->PushString("Tick");
-				LUA->PushString("tmysql4");
+				LUA->PushString("tmysql4.PollAll");
 				LUA->PushCFunction(PollAll);
 			}
 			LUA->Call(3, 0);
