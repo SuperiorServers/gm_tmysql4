@@ -15,9 +15,21 @@ For any other issues, just verify all include directories are properly set up.
 
 ## Documentation
 
+##### Updating 4 -> 4.1
+``` lua
+-- Function changes
+tmysql.initalize -> tmysql.Connect
+Database:Option -> Database:SetOption
+
+-- Enums Moved to
+tmysql.flags
+tmysql.opts
+tmysql.info
+```
+
 ##### Creating a connection
 ``` lua
-Database connection, String error = tmysql.initialize( String hostname, String username, String password, String database, Number port, String unixSocketPath, Number ClientFlags, Function ConnectCallback)
+Database connection, String error = tmysql.Connect( String hostname, String username, String password, String database, Number port, String unixSocketPath, Number ClientFlags, Function ConnectCallback)
 ```
 
 ##### Escaping a String
@@ -34,7 +46,7 @@ Database:Connect() -- Starts and connects the database for tmysql.Create
 ```
 ##### Connect Options
 ``` lua
-Database:Option(MYSQL_OPT_ENUM, String option) -- Sets a mysql_option for the connection. Use with tmysql.Create then call Connect() after you set the options you want.
+Database:SetOption( tmysql.opts.MYSQL_OPT_ENUM, String option ) -- Sets a mysql_option for the connection. Use with tmysql.Create then call Connect() after you set the options you want.
 ```
 ##### Stopping a connection
 ``` lua
@@ -93,7 +105,7 @@ Database:Query( "SELECT * FROM some_table", GAMEMODE.OurMySQLCallback, GAMEMODE 
 ```
 ##### Multiple results
 ``` lua
-local Database, error = tmysql.Connect("localhost", "root", "root", "test", 3306, nil, CLIENT_MULTI_STATEMENTS)
+local Database, error = tmysql.Connect("localhost", "root", "root", "test", 3306, nil, tmysq.flags.CLIENT_MULTI_STATEMENTS)
 
 local function onCompleted( results )
 	print( "Query completed" )
@@ -106,7 +118,7 @@ Database:Query( "SELECT * FROM test; SELECT 1+5;", onCompleted )
 
 ##### Custom client IP
 ``` lua
-local Database, error = tmysql.Create("localhost", "root", "root", "test", 3306, nil, CLIENT_MULTI_STATEMENTS)
+local Database, error = tmysql.Create("localhost", "root", "root", "test", 3306, nil, tmysq.flags.CLIENT_MULTI_STATEMENTS)
 Database:Option(MYSQL_SET_CLIENT_IP, "192.168.1.123")
 local status, error = Database:Connect()
 ```
