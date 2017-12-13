@@ -42,6 +42,6 @@ solution "tmysql4"
 	
 	project "tmysql4"
 		defines { "GMMODULE", "ENABLE_QUERY_TIMERS" }
-		files { "src/**.*", "include/**.*" }
+		files { "src/**.*", "include/GarrysMod/**.*", "include/" .. osname .. "/**.*" }
 		kind "SharedLib"
 		
