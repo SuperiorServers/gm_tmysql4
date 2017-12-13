@@ -760,7 +760,7 @@ GMOD_MODULE_OPEN()
 		LUA->PushCFunction(DBEscape);
 		LUA->SetField(-2, "Escape");
 		LUA->PushCFunction(DBOption);
-		LUA->SetField(-2, "Option");
+		LUA->SetField(-2, "SetOption");
 		LUA->PushCFunction(DBGetServerInfo);
 		LUA->SetField(-2, "GetServerInfo");
 		LUA->PushCFunction(DBGetHostInfo);
