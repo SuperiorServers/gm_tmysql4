@@ -1,4 +1,4 @@
-/* Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
+/* Copyright (c) 2009, 2016, Oracle and/or its affiliates. All rights reserved.
  
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@
 #define HAVE_GETEGID 1
 #define HAVE_LSTAT 1
 #define HAVE_MADVISE 1
-/* #undef HAVE_MALLOC_INFO */
+#define HAVE_MALLOC_INFO 1
 #define HAVE_MEMRCHR 1
 #define HAVE_MLOCK 1
 #define HAVE_MLOCKALL 1
@@ -158,14 +158,12 @@
 /* #undef FIONREAD_IN_SYS_FILIO */
 #define HAVE_SIGEV_THREAD_ID 1
 /* #undef HAVE_SIGEV_PORT */
-/* #undef HAVE_LOG2 */
+#define HAVE_LOG2 1
 
 #define HAVE_ISINF 1
 
 /* #undef HAVE_KQUEUE_TIMERS */
 #define HAVE_POSIX_TIMERS 1
-/* #undef HAVE_WINDOWS_TIMERS */
-#define HAVE_MY_TIMER 1
 
 /* Endianess */
 /* #undef WORDS_BIGENDIAN */
@@ -182,6 +180,10 @@
 #define HAVE_UINT 1
 #define HAVE_ULONG 1
 #define HAVE_U_INT32_T 1
+#define HAVE_STRUCT_TIMESPEC
+
+/* Support for tagging symbols with __attribute__((visibility("hidden"))) */
+#define HAVE_VISIBILITY_HIDDEN 1
 
 /* Code tests*/
 #define STACK_DIRECTION -1
@@ -195,7 +197,8 @@
 #define HAVE_BUILTIN_UNREACHABLE 1
 #define HAVE_BUILTIN_EXPECT 1
 #define HAVE_BUILTIN_STPCPY 1
-#define HAVE_GCC_ATOMIC_BUILTINS 1
+/* #undef HAVE_GCC_ATOMIC_BUILTINS */
+#define HAVE_GCC_SYNC_BUILTINS 1
 /* #undef HAVE_VALGRIND */
 
 /* IPV6 */
@@ -216,7 +219,7 @@
 /* #undef HAVE_SOLARIS_LARGE_PAGES */
 /* #undef HAVE_SOLARIS_ATOMIC */
 /* #undef HAVE_SOLARIS_STYLE_GETHOST */
-#define SYSTEM_TYPE "linux-glibc2.5"
+#define SYSTEM_TYPE "linux-glibc2.12"
 /* Windows stuff, mostly functions, that have Posix analogs but named differently */
 /* #undef IPPROTO_IPV6 */
 /* #undef IPV6_V6ONLY */
@@ -238,6 +241,7 @@
 #define SHAREDIR "/usr/local/mysql/share"
 #define DEFAULT_BASEDIR "/usr/local/mysql"
 #define MYSQL_DATADIR "/usr/local/mysql/data"
+#define MYSQL_KEYRINGDIR "/usr/local/mysql/keyring"
 #define DEFAULT_CHARSET_HOME "/usr/local/mysql"
 #define PLUGINDIR "/usr/local/mysql/lib/plugin"
 #define DEFAULT_SYSCONFDIR "/usr/local/mysql/etc"
@@ -250,10 +254,10 @@
 #define INSTALL_INCLUDEDIR "/usr/local/mysql/include"
 #define INSTALL_SCRIPTDIR "/usr/local/mysql/scripts"
 #define INSTALL_MYSQLDATADIR "/usr/local/mysql/data"
+#define INSTALL_MYSQLKEYRINGDIR "/usr/local/mysql/keyring"
 /* #undef INSTALL_PLUGINTESTDIR */
 #define INSTALL_INFODIR "/usr/local/mysql/docs"
 #define INSTALL_MYSQLTESTDIR "/usr/local/mysql/mysql-test"
-#define INSTALL_SQLBENCHDIR "/usr/local/mysql/."
 #define INSTALL_DOCREADMEDIR "/usr/local/mysql/."
 #define INSTALL_DOCDIR "/usr/local/mysql/docs"
 #define INSTALL_MANDIR "/usr/local/mysql/man"
@@ -272,6 +276,7 @@
 /* #undef HAVE_NCURSES_H */
 /* #undef USE_LIBEDIT_INTERFACE */
 /* #undef HAVE_HIST_ENTRY */
+/* #undef USE_NEW_EDITLINE_INTERFACE */
 
 /*
  * Libedit
@@ -339,6 +344,7 @@
  * Performance schema
  */
 /* #undef WITH_PERFSCHEMA_STORAGE_ENGINE */
+/* #undef DISABLE_PSI_THREAD */
 /* #undef DISABLE_PSI_MUTEX */
 /* #undef DISABLE_PSI_RWLOCK */
 /* #undef DISABLE_PSI_COND */
@@ -354,6 +360,15 @@
 /* #undef DISABLE_PSI_METADATA */
 /* #undef DISABLE_PSI_MEMORY */
 /* #undef DISABLE_PSI_TRANSACTION */
+
+/*
+ * syscall
+*/
+/* #undef HAVE_SYS_THREAD_SELFID */
+/* #undef HAVE_SYS_GETTID */
+/* #undef HAVE_PTHREAD_GETTHREADID_NP */
+/* #undef HAVE_PTHREAD_SETNAME_NP */
+/* #undef HAVE_INTEGER_PTHREAD_SELF */
 
 /* Platform-specific C++ compiler behaviors we rely upon */
 
@@ -374,15 +389,15 @@
 #define DOT_FRM_VERSION 6
 #define MYSQL_VERSION_MAJOR 6
 #define MYSQL_VERSION_MINOR 1
-#define MYSQL_VERSION_PATCH 6
+#define MYSQL_VERSION_PATCH 11
 #define MYSQL_VERSION_EXTRA ""
 #define PACKAGE "mysql"
 #define PACKAGE_BUGREPORT ""
 #define PACKAGE_NAME "MySQL Server"
-#define PACKAGE_STRING "MySQL Server 6.1.6"
+#define PACKAGE_STRING "MySQL Server 6.1.11"
 #define PACKAGE_TARNAME "mysql"
-#define PACKAGE_VERSION "6.1.6"
-#define VERSION "6.1.6"
+#define PACKAGE_VERSION "6.1.11"
+#define VERSION "6.1.11"
 #define PROTOCOL_VERSION 10
 
 /*
@@ -401,6 +416,7 @@
  * Other
  */
 /* #undef EXTRA_DEBUG */
+#define HAVE_CHOWN 1
 
 /*
  * Hardcoded values needed by libevent/NDB/memcached
@@ -408,7 +424,10 @@
 #define HAVE_FCNTL_H 1
 #define HAVE_GETADDRINFO 1
 #define HAVE_INTTYPES_H 1
+/* libevent's select.c is not Windows compatible */
+#ifndef _WIN32
 #define HAVE_SELECT 1
+#endif
 #define HAVE_SIGNAL_H 1
 #define HAVE_STDARG_H 1
 #define HAVE_STDINT_H 1
@@ -419,5 +438,18 @@
 #define HAVE_SYS_STAT_H 1
 #define HAVE_SYS_TYPES_H 1
 #define SIZEOF_CHAR 1
+
+/*
+ * Needed by libevent
+ */
+/* #undef HAVE_SOCKLEN_T */
+
+/* For --secure-file-priv */
+#define DEFAULT_SECURE_FILE_PRIV_DIR "NULL"
+#define DEFAULT_SECURE_FILE_PRIV_EMBEDDED_DIR "NULL"
+#define HAVE_LIBNUMA 1
+
+/* For default value of --early_plugin_load */
+/* #undef DEFAULT_EARLY_PLUGIN_LOAD */
 
 #endif
