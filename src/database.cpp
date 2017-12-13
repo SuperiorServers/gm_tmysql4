@@ -1,4 +1,5 @@
 #include "gm_tmysql.h"
+#include <errmsg.h>
 
 using namespace GarrysMod::Lua;
 
@@ -47,6 +48,13 @@ bool Database::Connect(std::string& error)
 {
 	const char* socket = (m_strSocket.length() == 0) ? nullptr : m_strSocket.c_str();
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
+
+	my_bool tru = 1;
+	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &tru) > 0)
+	{
+		error.assign(mysql_error(m_MySQL));
+		return false;
+	}
 
 	if (mysql_real_connect(m_MySQL, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, socket, flags) != m_MySQL)
 	{
@@ -153,23 +161,24 @@ void Database::DoExecute(Query* query)
 	const char* strquery = query->GetQuery().c_str();
 	size_t len = query->GetQueryLength();
 
-	if (mysql_ping(m_MySQL) > 0) {
-		mysql_close(m_MySQL);
+	bool hasRetried = false;
 
-		m_MySQL = mysql_init(NULL);
+	retry:
 
-		std::string err;
-		Connect(err);
+	unsigned int errorno = NULL;
+	if (mysql_real_query(m_MySQL, strquery, len) != 0) {
 
-		// will it crash if it fails???? todo: check that!
+		errorno = mysql_errno(m_MySQL);
+
+		if (!hasRetried && ((errorno == CR_SERVER_LOST) || (errorno == CR_SERVER_GONE_ERROR) || (errorno != CR_CONN_HOST_ERROR) || (errorno == 1053)/*ER_SERVER_SHUTDOWN*/ || (errorno != CR_CONNECTION_ERROR))) {
+			hasRetried = true;
+			goto retry;
+		}
 	}
-
-	mysql_real_query(m_MySQL, strquery, len);
 	
 	int status = 0;
 	while (status != -1) {
 		MYSQL_RES* pResult = mysql_store_result(m_MySQL);
-		unsigned int errorno = mysql_errno(m_MySQL);
 
 		Result* result = new Result();
 		{

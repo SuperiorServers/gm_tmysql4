@@ -72,7 +72,9 @@ void PushDatabaseHandle(lua_State* state, Database* mysqldb)
 	LUA->SetMetaTable(-2);
 }
 
-int create(lua_State* state)
+
+// tmysql
+int tmysql_Create(lua_State* state)
 {
 	Database* mysqldb = makeDatabase(state);
 
@@ -87,7 +89,7 @@ int create(lua_State* state)
 	return 1;
 }
 
-int Connect(lua_State* state)
+int tmysql_Connect(lua_State* state)
 {
 	Database* mysqldb = makeDatabase(state);
 
@@ -107,12 +109,13 @@ int Connect(lua_State* state)
 	return 1;
 }
 
-int GetTable(lua_State* state)
+int tmysql_GetTable(lua_State* state)
 {
 	LUA->ReferencePush(iRefDatabases);
 	return 1;
 }
 
+// Database
 int Database_Escape(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
@@ -580,11 +583,11 @@ GMOD_MODULE_OPEN()
 			LUA->PushNumber(4.1);
 			LUA->SetField(-2, "Version");
 
-			LUA->PushCFunction(create);
+			LUA->PushCFunction(tmysql_Create);
 			LUA->SetField(-2, "Create");
-			LUA->PushCFunction(Connect);
+			LUA->PushCFunction(tmysql_Connect);
 			LUA->SetField(-2, "Connect");
-			LUA->PushCFunction(GetTable);
+			LUA->PushCFunction(tmysql_GetTable);
 			LUA->SetField(-2, "GetTable");
 
 			LUA->CreateTable();
