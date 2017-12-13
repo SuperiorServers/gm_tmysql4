@@ -113,7 +113,7 @@ int GetTable(lua_State* state)
 	return 1;
 }
 
-int DBEscape(lua_State* state)
+int Database_Escape(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -141,7 +141,7 @@ int DBEscape(lua_State* state)
 	return 1;
 }
 
-int DBOption(lua_State* state)
+int Database_SetOption(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -161,7 +161,7 @@ int DBOption(lua_State* state)
 	return 2;
 }
 
-int DBGetServerInfo(lua_State* state)
+int Database_GetServerInfo(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -181,7 +181,7 @@ int DBGetServerInfo(lua_State* state)
 	return 1;
 }
 
-int DBGetHostInfo(lua_State* state)
+int Database_GetHostInfo(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -201,7 +201,7 @@ int DBGetHostInfo(lua_State* state)
 	return 1;
 }
 
-int DBGetServerVersion(lua_State* state)
+int Database_GetServerVersion(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -221,7 +221,7 @@ int DBGetServerVersion(lua_State* state)
 	return 1;
 }
 
-int DBConnect(lua_State* state)
+int Database_Connect(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -251,7 +251,7 @@ int DBConnect(lua_State* state)
 	return 1;
 }
 
-int DBIsConnected(lua_State* state)
+int Database_IsConnected(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -266,7 +266,7 @@ int DBIsConnected(lua_State* state)
 	return 1;
 }
 
-int DBDisconnect(lua_State* state)
+int Database_Disconnect(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -287,7 +287,7 @@ int DBDisconnect(lua_State* state)
 	return 0;
 }
 
-int DBSetCharacterSet(lua_State* state)
+int Database_SetCharacterSet(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -311,7 +311,7 @@ int DBSetCharacterSet(lua_State* state)
 	return 2;
 }
 
-int DBQuery(lua_State* state)
+int Database_Query(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -348,7 +348,7 @@ int DBQuery(lua_State* state)
 	return 0;
 }
 
-int DBPoll(lua_State* state)
+int Database_Poll(lua_State* state)
 {
 	LUA->CheckType(1, DATABASE_ID);
 
@@ -366,38 +366,20 @@ int DBPoll(lua_State* state)
 	return 0;
 }
 
+int Database_IsValid(lua_State* state)
+{
+	LUA->CheckType(1, DATABASE_ID);
+
+	Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(1));
+
+	LUA->PushBool(mysqldb != NULL);
+	
+	return 1;
+}
+
 /*
 TMYSQL STUFFS
 */
-
-int PollAll(lua_State* state)
-{
-	LUA->ReferencePush(iRefDatabases);
-	LUA->PushNil();
-
-	while (LUA->Next(-2))
-	{
-		LUA->Push(-2);
-
-		if (LUA->IsType(-2, DATABASE_ID))
-		{
-			Database * mysqldb = *reinterpret_cast<Database **>(LUA->GetUserdata(-2));
-
-			if (mysqldb)
-			{
-				if (mysqldb->IsPendingCallback())
-					HandleConnectCallback(state, mysqldb);
-
-				DispatchCompletedQueries(state, mysqldb);
-			}
-		}
-
-		LUA->Pop(2);
-	}
-	LUA->Pop();
-	return 0;
-}
-
 void DisconnectDB(lua_State* state, Database* mysqldb)
 {
 	if (mysqldb)
@@ -604,8 +586,6 @@ GMOD_MODULE_OPEN()
 			LUA->SetField(-2, "Connect");
 			LUA->PushCFunction(GetTable);
 			LUA->SetField(-2, "GetTable");
-			LUA->PushCFunction(PollAll);
-			LUA->SetField(-2, "PollAll");
 
 			LUA->CreateTable();
 			{
@@ -732,21 +712,8 @@ GMOD_MODULE_OPEN()
 				LUA->SetField(-2, "MYSQL_OPT_SSL_ENFORCE");
 			}
 			LUA->SetField(-2, "opts");
-
 		}
 		LUA->SetField(-2, "tmysql");
-
-		LUA->GetField(-1, "hook");
-		{
-			LUA->GetField(-1, "Add");
-			{
-				LUA->PushString("Tick");
-				LUA->PushString("tmysql4.PollAll");
-				LUA->PushCFunction(PollAll);
-			}
-			LUA->Call(3, 0);
-		}
-		LUA->Pop();
 	}
 	LUA->Pop();
 
@@ -755,27 +722,29 @@ GMOD_MODULE_OPEN()
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
 
-		LUA->PushCFunction(DBQuery);
+		LUA->PushCFunction(Database_IsValid);
+		LUA->SetField(-2, "IsValid");
+		LUA->PushCFunction(Database_Query);
 		LUA->SetField(-2, "Query");
-		LUA->PushCFunction(DBEscape);
+		LUA->PushCFunction(Database_Escape);
 		LUA->SetField(-2, "Escape");
-		LUA->PushCFunction(DBOption);
+		LUA->PushCFunction(Database_SetOption);
 		LUA->SetField(-2, "SetOption");
-		LUA->PushCFunction(DBGetServerInfo);
+		LUA->PushCFunction(Database_GetServerInfo);
 		LUA->SetField(-2, "GetServerInfo");
-		LUA->PushCFunction(DBGetHostInfo);
+		LUA->PushCFunction(Database_GetHostInfo);
 		LUA->SetField(-2, "GetHostInfo");
-		LUA->PushCFunction(DBGetServerVersion);
+		LUA->PushCFunction(Database_GetServerVersion);
 		LUA->SetField(-2, "GetServerVersion");
-		LUA->PushCFunction(DBConnect);
+		LUA->PushCFunction(Database_Connect);
 		LUA->SetField(-2, "Connect");
-		LUA->PushCFunction(DBIsConnected);
+		LUA->PushCFunction(Database_IsConnected);
 		LUA->SetField(-2, "IsConnected");
-		LUA->PushCFunction(DBDisconnect);
+		LUA->PushCFunction(Database_Disconnect);
 		LUA->SetField(-2, "Disconnect");
-		LUA->PushCFunction(DBSetCharacterSet);
+		LUA->PushCFunction(Database_SetCharacterSet);
 		LUA->SetField(-2, "SetCharacterSet");
-		LUA->PushCFunction(DBPoll);
+		LUA->PushCFunction(Database_Poll);
 		LUA->SetField(-2, "Poll");
 	}
 	LUA->Pop(1);

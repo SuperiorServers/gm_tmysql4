@@ -48,13 +48,6 @@ bool Database::Connect(std::string& error)
 	const char* socket = (m_strSocket.length() == 0) ? nullptr : m_strSocket.c_str();
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
 
-	my_bool tru = 1;
-	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &tru) > 0)
-	{
-		error.assign(mysql_error(m_MySQL));
-		return false;
-	}
-
 	if (mysql_real_connect(m_MySQL, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, socket, flags) != m_MySQL)
 	{
 		error.assign(mysql_error(m_MySQL));
@@ -159,6 +152,17 @@ void Database::DoExecute(Query* query)
 {
 	const char* strquery = query->GetQuery().c_str();
 	size_t len = query->GetQueryLength();
+
+	if (mysql_ping(m_MySQL) > 0) {
+		mysql_close(m_MySQL);
+
+		m_MySQL = mysql_init(NULL);
+
+		std::string err;
+		Connect(err);
+
+		// will it crash if it fails???? todo: check that!
+	}
 
 	mysql_real_query(m_MySQL, strquery, len);
 	

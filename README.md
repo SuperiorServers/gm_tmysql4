@@ -28,6 +28,9 @@ tmysql.info
 
 -- Added
 tmysql.Version
+
+-- Removed
+tmysql.PollAll -- You have to manually poll now, it's faster... By a lot... Trust me.
 ```
 
 ##### Creating a connection
