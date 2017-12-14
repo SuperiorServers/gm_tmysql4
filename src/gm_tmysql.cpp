@@ -104,6 +104,9 @@ int tmysql_Connect(lua_State* state)
 		return 2;
 	}
 
+	if (mysqldb->IsPendingCallback())
+		HandleConnectCallback(state, mysqldb);
+
 	PushDatabaseHandle(state, mysqldb);
 
 	return 1;
