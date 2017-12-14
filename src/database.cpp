@@ -6,18 +6,8 @@ using namespace GarrysMod::Lua;
 unsigned int database_index = 1;
 
 Database::Database(std::string host, std::string user, std::string pass, std::string db, unsigned int port, std::string socket, unsigned long flags, int callback)
+	: m_strHost(host), m_strUser(user), m_strPass(pass), m_strDB(db), m_iPort(port), m_strSocket(socket), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL), m_iTableIndex(database_index++)
 {
-	m_strHost.assign(host);
-	m_strUser.assign(user);
-	m_strPass.assign(pass);
-	m_strDB.assign(db);
-	m_iPort = port;
-	m_strSocket.assign(socket);
-	m_iClientFlags = flags;
-	m_iCallback = callback;
-	m_MySQL = NULL;
-	m_bIsConnected = false;
-	m_iTableIndex = database_index++;
 	work.reset(new asio::io_service::work(io_service));
 }
 
