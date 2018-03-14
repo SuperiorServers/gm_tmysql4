@@ -9,7 +9,7 @@ gmsv_tmysql should compile out of the box for both Visual Studio and GCC on Linu
 
 On Linux, make sure the compiler is using the C++11 standard library. You should be linking directly to libmysqlclient.a as well.
 
-On Windows, make sure the module is compiling at multi-threaded (/MT flag) and that libmysqlclient is being linked statically (the dll file should be 3-4mb, not 300-400kb.)
+On Windows, make sure the module is compiling at multi-threaded DLL (/MD flag) and that libmysqlclient is being linked statically (the dll file should be 3-4mb, not 300-400kb.)
 
 For any other issues, just verify all include directories are properly set up.
 
