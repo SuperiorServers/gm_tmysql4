@@ -1,6 +1,6 @@
 -- bjam release address-model=32 runtime-link=static --with-system --with-thread --with-date_time --with-regex --with-serialization stage
 
-local osname = os.get()
+local osname = os.target()
 local dllname = osname
 
 if dllname == "windows" then
@@ -25,7 +25,7 @@ solution "tmysql4"
 	if osname == "windows" then
 		links { "mysqlclient" }
 	elseif osname == "linux" then
-		links { "mysqlclient", "boost_system", "rt" }
+		links { "mysqlclient", "rt" }
 	else error( "unknown os: " .. osname ) end
 	
 	configurations
