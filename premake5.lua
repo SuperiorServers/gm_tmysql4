@@ -11,10 +11,16 @@ solution "tmysql4"
 
 	language "C++"
 	location ( osname .."-".. _ACTION )
-	flags { "Symbols", "NoEditAndContinue", "NoPCH", "StaticRuntime", "EnableSSE" }
+	
+	flags {"NoPCH"}
+	symbols"On"
+	editandcontinue"Off"
+	vectorextensions"SSE"
+	staticruntime"On"
+	
 	targetdir ( "bin/" .. osname .. "/" )
 	includedirs { "include/GarrysMod", "include/" .. osname, "include/asio/asio/include" }
-	platforms{ "x32" }
+	platforms{ "x86","x86_64" }
 	libdirs { "library/" .. osname }
 
 	targetprefix ("gmsv_")
@@ -38,10 +44,16 @@ solution "tmysql4"
 			buildoptions { "-std=c++0x -pthread -Wl,-z,defs" }
 		end
 		defines { "NDEBUG" }
-		flags{ "Optimize", "FloatFast" }
+		optimize"On"
+		floatingpoint"Fast"
 	
 	project "tmysql4"
 		defines { "GMMODULE", "ENABLE_QUERY_TIMERS" }
 		files { "src/**.*", "include/GarrysMod/**.*", "include/" .. osname .. "/**.*" }
 		kind "SharedLib"
 		
+		filter'platforms:x86'
+			architecture'x86'
+		filter'platforms:x64'
+			architecture'x86_64'
+		filter{}
