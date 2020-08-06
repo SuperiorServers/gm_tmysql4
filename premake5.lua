@@ -16,7 +16,7 @@ solution "tmysql4"
 	symbols"On"
 	editandcontinue"Off"
 	vectorextensions"SSE"
-	staticruntime"On"
+	staticruntime"Off"
 	
 	targetdir ( "bin/" .. osname .. "/" )
 	includedirs { "include/GarrysMod", "include/" .. osname, "include/asio/asio/include" }
@@ -29,9 +29,9 @@ solution "tmysql4"
 	targetextension ".dll"
 
 	if osname == "windows" then
-		links { "mysqlclient" }
+		links { "mariadbclient" }
 	elseif osname == "linux" then
-		links { "mysqlclient", "rt" }
+		links { "mariadbclient", "rt" }
 	else error( "unknown os: " .. osname ) end
 	
 	configurations

@@ -605,8 +605,6 @@ GMOD_MODULE_OPEN()
 
 			LUA->CreateTable();
 			{
-				LUA->PushNumber(CLIENT_LONG_PASSWORD);
-				LUA->SetField(-2, "CLIENT_LONG_PASSWORD");
 				LUA->PushNumber(CLIENT_FOUND_ROWS);
 				LUA->SetField(-2, "CLIENT_FOUND_ROWS");
 				LUA->PushNumber(CLIENT_LONG_FLAG);
