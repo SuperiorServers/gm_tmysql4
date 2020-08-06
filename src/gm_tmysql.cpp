@@ -583,7 +583,7 @@ GMOD_MODULE_OPEN()
 	{
 		LUA->CreateTable();
 		{
-			LUA->PushNumber(4.1);
+			LUA->PushNumber(4.2);
 			LUA->SetField(-2, "Version");
 
 			LUA->PushCFunction(tmysql_Create);
