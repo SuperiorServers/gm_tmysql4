@@ -46,8 +46,7 @@ bool Database::Connect(std::string& error)
 		return false;
 	}
 
-	ASSIGN_WORKING_DIR(workingDir);
-	std::string wkdir = workingDir + "/garrysmod/lua/bin";
+	std::string wkdir = get_working_dir() + "/garrysmod/lua/bin";
 	if (mysql_options(m_MySQL, MYSQL_PLUGIN_DIR, wkdir.c_str()) > 0)
 	{
 		error.assign(mysql_error(m_MySQL));

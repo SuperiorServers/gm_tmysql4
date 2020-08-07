@@ -14,6 +14,8 @@
 #include "asio.hpp"
 #include "timer.h"
 
+inline std::string get_working_dir() { char buff[FILENAME_MAX]; GetCurrentDir(buff, FILENAME_MAX); return std::string(buff); }
+
 // From the boost atomic examples	
 template<typename T>
 class waitfree_query_queue {

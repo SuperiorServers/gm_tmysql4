@@ -16,8 +16,6 @@
 
 #endif
 
-#define ASSIGN_WORKING_DIR( varname ) char buff[FILENAME_MAX]; GetCurrentDir(buff, FILENAME_MAX); std::string varname = std::to_string(*buff);
-
 #include <mysql.h>
 
 #include "Lua/Interface.h"
