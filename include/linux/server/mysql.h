@@ -423,7 +423,7 @@ int STDCALL mariadb_field_attr(MARIADB_CONST_STRING *attr,
 
 
 unsigned int STDCALL mysql_field_count(MYSQL *mysql);
-my_ulonglong STDCALL mysql_affected_rows(MYSQL *mysql);
+long long STDCALL mysql_affected_rows(MYSQL *mysql);
 my_ulonglong STDCALL mysql_insert_id(MYSQL *mysql);
 unsigned int STDCALL mysql_errno(MYSQL *mysql);
 const char * STDCALL mysql_error(MYSQL *mysql);
