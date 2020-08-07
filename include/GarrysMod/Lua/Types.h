@@ -1,112 +1,124 @@
-
 #ifndef GARRYSMOD_LUA_TYPES_H
 #define GARRYSMOD_LUA_TYPES_H
 
-#ifdef ENTITY
-#undef ENTITY
-#endif 
-
-#ifdef VECTOR
-#undef VECTOR
-#endif 
-
-namespace GarrysMod 
+namespace GarrysMod
 {
-	namespace Lua
-	{
-		namespace Type
-		{
-			enum
-			{
+    namespace Lua
+    {
+        namespace Type
+        {
+            enum
+            {
+#ifdef GMOD_ALLOW_DEPRECATED
+                // Deprecated: Use `None` instead of `Invalid`
+                Invalid = -1,
+#endif
 
-				INVALID = -1,
-				NIL, 
-				BOOL,
-				LIGHTUSERDATA,
-				NUMBER, 
-				STRING, 
-				TABLE,
-				FUNCTION,
-				USERDATA,
-				THREAD,
+                // Default Lua Types
+                None = -1,
+                Nil,
+                Bool,
+                LightUserData,
+                Number,
+                String,
+                Table,
+                Function,
+                UserData,
+                Thread,
 
-				// UserData
-				ENTITY, 
-				VECTOR, 
-				ANGLE,
-				PHYSOBJ,
-				SAVE,
-				RESTORE,
-				DAMAGEINFO,
-				EFFECTDATA,
-				MOVEDATA,
-				RECIPIENTFILTER,
-				USERCMD,
-				SCRIPTEDVEHICLE,
+                // GMod Types
+                Entity,
+                Vector,
+                Angle,
+                PhysObj,
+                Save,
+                Restore,
+                DamageInfo,
+                EffectData,
+                MoveData,
+                RecipientFilter,
+                UserCmd,
+                ScriptedVehicle,
+                Material,
+                Panel,
+                Particle,
+                ParticleEmitter,
+                Texture,
+                UserMsg,
+                ConVar,
+                IMesh,
+                Matrix,
+                Sound,
+                PixelVisHandle,
+                DLight,
+                Video,
+                File,
+                Locomotion,
+                Path,
+                NavArea,
+                SoundHandle,
+                NavLadder,
+                ParticleSystem,
+                ProjectedTexture,
+                PhysCollide,
+                SurfaceInfo,
 
-				// Client Only
-				MATERIAL,
-				PANEL,
-				PARTICLE,
-				PARTICLEEMITTER,
-				TEXTURE,
-				USERMSG,
+                Type_Count
+            };
 
-				CONVAR,
-				IMESH,
-				MATRIX,
-				SOUND,
-				PIXELVISHANDLE,
-				DLIGHT,
-				VIDEO,
-				FILE,
-
-				COUNT
-			};
-
-			static const char* Name[] = 
-			{
-				"nil",
-				"bool",
-				"lightuserdata",
-				"number",
-				"string",
-				"table",
-				"function",
-				"userdata",
-				"thread",
-				"entity",
-				"vector",
-				"angle",
-				"physobj",
-				"save",
-				"restore",
-				"damageinfo",
-				"effectdata",
-				"movedata",
-				"recipientfilter",
-				"usercmd",
-				"vehicle",
-				"material",
-				"panel",
-				"particle",
-				"particleemitter",
-				"texture",
-				"usermsg",
-				"convar",
-				"mesh",
-				"matrix",
-				"sound",
-				"pixelvishandle",
-				"dlight",
-				"video",
-				"file",
-
-				0
-			};
-		}
-	}
+#if ( defined( GMOD ) || defined( GMOD_ALLOW_DEPRECATED ) )
+            // You should use ILuaBase::GetTypeName instead of directly accessing this array
+            static const char* Name[] =
+            {
+                "nil",
+                "bool",
+                "lightuserdata",
+                "number",
+                "string",
+                "table",
+                "function",
+                "userdata",
+                "thread",
+                "entity",
+                "vector",
+                "angle",
+                "physobj",
+                "save",
+                "restore",
+                "damageinfo",
+                "effectdata",
+                "movedata",
+                "recipientfilter",
+                "usercmd",
+                "vehicle",
+                "material",
+                "panel",
+                "particle",
+                "particleemitter",
+                "texture",
+                "usermsg",
+                "convar",
+                "mesh",
+                "matrix",
+                "sound",
+                "pixelvishandle",
+                "dlight",
+                "video",
+                "file",
+                "locomotion",
+                "path",
+                "navarea",
+                "soundhandle",
+                "navladder",
+                "particlesystem",
+                "projectedtexture",
+                "physcollide",
+                "surfaceinfo",
+                nullptr
+            };
+#endif
+        }
+    }
 }
 
-#endif 
-
+#endif
