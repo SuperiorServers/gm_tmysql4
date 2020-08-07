@@ -23,6 +23,8 @@
 [Rr]eleases/
 x64/
 x86/
+!library/*
+!plugin/*
 bld/
 [Bb]in/
 [Oo]bj/
