@@ -27,18 +27,18 @@ Database* makeDatabase(lua_State* state)
 	std::string unixSocket = "";
 	unsigned long flags = 0;
 
-	if (LUA->IsType(5, Type::NUMBER))
+	if (LUA->IsType(5, Type::Number))
 		port = (unsigned int)LUA->GetNumber(5);
 
-	if (LUA->IsType(6, GarrysMod::Lua::Type::STRING)) {
+	if (LUA->IsType(6, GarrysMod::Lua::Type::String)) {
 		unixSocket = LUA->GetString(6);
 	}
 
-	if (LUA->IsType(7, Type::NUMBER))
+	if (LUA->IsType(7, Type::Number))
 		flags  = (unsigned long)LUA->GetNumber(7);
 
 	int callbackfunc = -1;
-	if (LUA->GetType(8) == Type::FUNCTION)
+	if (LUA->GetType(8) == Type::Function)
 	{
 		LUA->Push(8);
 		callbackfunc = LUA->ReferenceCreate();
@@ -135,7 +135,7 @@ int Database_Escape(lua_State* state)
 		return 0;
 	}
 
-	LUA->CheckType(2, Type::STRING);
+	LUA->CheckType(2, Type::String);
 
 	unsigned int len;
 	const char* query = LUA->GetString(2, &len);
@@ -336,7 +336,7 @@ int Database_Query(lua_State* state)
 	const char* query = LUA->CheckString(2);
 
 	int callbackfunc = -1;
-	if (LUA->GetType(3) == Type::FUNCTION)
+	if (LUA->GetType(3) == Type::Function)
 	{
 		LUA->Push(3);
 		callbackfunc = LUA->ReferenceCreate();
@@ -344,7 +344,7 @@ int Database_Query(lua_State* state)
 
 	int callbackref = -1;
 	int callbackobj = LUA->GetType(4);
-	if (callbackobj != Type::NIL)
+	if (callbackobj != Type::Nil)
 	{
 		LUA->Push(4);
 		callbackref = LUA->ReferenceCreate();
@@ -425,7 +425,7 @@ void HandleConnectCallback(lua_State* state, Database* db)
 	{
 		LUA->ReferencePush(db->GetCallback());
 
-		if (!LUA->IsType(-1, Type::FUNCTION))
+		if (!LUA->IsType(-1, Type::Function))
 		{
 			LUA->Pop();
 			return;
@@ -451,7 +451,7 @@ void HandleQueryCallback(lua_State* state, Query* query)
 	LUA->ReferencePush(query->GetCallback());
 	LUA->ReferenceFree(query->GetCallback());
 
-	if (!LUA->IsType(-1, Type::FUNCTION))
+	if (!LUA->IsType(-1, Type::Function))
 	{
 		LUA->Pop();
 		LUA->ReferenceFree(query->GetCallbackRef());
