@@ -1,4 +1,4 @@
-# gm_tmysql4 **4.2**
+# gm_tmysql4 **4.3**
 
 ## Building
 1. Pull the [asio](https://github.com/chriskohlhoff/asio/) submodule using `git submodule update --init`
@@ -14,6 +14,19 @@ On Windows, make sure the module is compiling as multi-threaded DLL (/MD flag) a
 For any other issues, just verify all include directories are properly set up.
 
 # Changes
+### 4.2 -> 4.3
+```
+Added:
+* Database:Prepare(String query)
+  MySQL prepared statements are parameterized queries.
+  Write a query with ? in place of your input to recycle the query object
+  This is much more efficient and faster than running a traditional query many times with different data
+  Additionally, inputs do not need to be escaped for prepared statements
+
+* PreparedStatement:Run(..., Function callback, Object anything, Boolean ColumnNumbers)
+  Write your parameters in the function call first,
+  followed by an optional callback function, object to pass to the callback, and boolean switch for named/numbered columns
+```
 ### 4.1 -> 4.2
 ```
 Connector/C is now based on MariaDB 10.5.4
@@ -77,26 +90,35 @@ Database:Disconnect() -- Ends the connection for this database and calls all pen
 ``` lua
 Database:Query( String query, Function callback, Object anything, Boolean ColumnNumbers )
 ```
+#### Running a prepared statement
+``` lua
+Statement = Database:Prepare( String query )
+Statement:Run( String/Number/Boolean/nil arguments..., Function callback, Object anything, Boolean ColumnNumbers )
+```
 #### Callback structure
 ``` lua
 function callback( Table results )
 ```
 #### Results structure
-``` lua
+```
 Results {
 	[1] = {
-		status = true/false,
-		error = the error string,
-		affected = number of rows affected by the query,
-		lastid = the index of the last row inserted by the query,
-		time = how long it took to complete,
+		status = true/false
+		error = the error string
+		affected = number of rows affected by the query
+		lastid = the index of the last row inserted by the query
+		time = time elapsed since creating the query and receiving the callback (not strictly useful for query benchmarking)
 		data = {
-			{
-				somefield = "some shit",
-				otherfield = "other shit",
+			[1] = {
+				columnName1 = "some data 1"
+				columnName2 = "more data 1"
+			},
+			[2] = {
+				columnName1 = "some data 2"
+				columnName2 = "more data 2"
 			}
-		},
-	},
+		}
+	}
 }
 ```
 If status is false, data, affected, and lastid will be nil
@@ -124,6 +146,16 @@ end
 
 Database:Query( "SELECT * FROM some_table", GAMEMODE.OurMySQLCallback, GAMEMODE ) -- Call the gamemode function
 ```
+
+#### Prepared query data retrieval
+``` lua
+local statement = Database:Prepare( "SELECT * FROM some_table WHERE steamid = ?" )
+
+for k, v in ipairs( player.GetAll() ) do
+	statement:Run(v:SteamID64(), onPlayerCompleted, v)
+end
+```
+
 #### Multiple results
 ``` lua
 local Database, error = tmysql.Connect("localhost", "root", "root", "test", 3306, nil, tmysql.flags.CLIENT_MULTI_STATEMENTS)
