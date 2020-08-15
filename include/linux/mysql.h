@@ -506,7 +506,7 @@ unsigned int STDCALL mysql_field_tell(MYSQL_RES *res);
 unsigned int STDCALL mysql_field_count(MYSQL *mysql);
 my_bool STDCALL mysql_more_results(MYSQL *mysql);
 int STDCALL mysql_next_result(MYSQL *mysql);
-long long STDCALL mysql_affected_rows(MYSQL *mysql);
+my_ulonglong STDCALL mysql_affected_rows(MYSQL *mysql);
 my_bool STDCALL mysql_autocommit(MYSQL *mysql, my_bool mode);
 my_bool STDCALL mysql_commit(MYSQL *mysql);
 my_bool STDCALL mysql_rollback(MYSQL *mysql);
@@ -740,7 +740,7 @@ struct st_mariadb_api {
   unsigned int (STDCALL *mysql_field_count)(MYSQL *mysql);
   my_bool (STDCALL *mysql_more_results)(MYSQL *mysql);
   int (STDCALL *mysql_next_result)(MYSQL *mysql);
-  long long (STDCALL *mysql_affected_rows)(MYSQL *mysql);
+  my_ulonglong (STDCALL *mysql_affected_rows)(MYSQL *mysql);
   my_bool (STDCALL *mysql_autocommit)(MYSQL *mysql, my_bool mode);
   my_bool (STDCALL *mysql_commit)(MYSQL *mysql);
   my_bool (STDCALL *mysql_rollback)(MYSQL *mysql);
