@@ -7,7 +7,7 @@ namespace GarrysMod
     {
         namespace Type
         {
-            enum
+            enum Enum
             {
 #ifdef GMOD_ALLOW_DEPRECATED
                 // Deprecated: Use `None` instead of `Invalid`
