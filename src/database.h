@@ -19,11 +19,13 @@
 
 #include "query.h"
 
+class PStatement;
+
 inline std::string get_working_dir() { char buff[FILENAME_MAX]; GetCurrentDir(buff, FILENAME_MAX); return std::string(buff); }
 
 // From the boost atomic examples	
 template<typename T>
-class waitfree_query_queue {
+class waitfree_action_queue {
 public:
 	void push(T * data)
 	{
@@ -45,7 +47,7 @@ public:
 		return first;
 	}
 
-	waitfree_query_queue() : head_(0) {}
+	waitfree_action_queue() : head_(0) {}
 
 	T * pop_all_reverse(void)
 	{
@@ -55,7 +57,7 @@ private:
 	std::atomic<T *> head_;
 };
 
-typedef waitfree_query_queue<Query> QueryQueue;
+typedef waitfree_action_queue<DatabaseAction> ActionQueue;
 
 class Database
 {
@@ -69,11 +71,16 @@ public:
 	void			TriggerCallback(lua_State* state);
 	void			PushHandle(lua_State* state);
 
+	PStatement*		CreateStatement(lua_State* state);
+	void			QueueStatement(PStatement* stmt, MYSQL_BIND* binds, int callback = -1, int callbackref = -1, bool usenumbers = false);
+
 	void			Disconnect(lua_State* state);
 
 	// Lua metamethods
+	static int		lua___gc(lua_State* state);
 	static int		lua_IsValid(lua_State* state);
 	static int		lua_Query(lua_State* state);
+	static int		lua_Prepare(lua_State* state);
 	static int		lua_Escape(lua_State* state);
 	static int		lua_SetOption(lua_State* state);
 	static int		lua_GetServerInfo(lua_State* state);
@@ -96,9 +103,6 @@ private:
 	std::string		m_strSocket;
 	unsigned long	m_iClientFlags;
 
-	int				m_iTableIndex;
-	int				GetTableIndex(void) { return m_iTableIndex; };
-
 	bool			m_bIsConnected;
 
 	bool			m_bIsPendingCallback;
@@ -111,10 +115,10 @@ private:
 	void			Release(void);
 
 	void			RunQuery(Query* query);
+	void			RunStatement(PStatement* stmt, MYSQL_BIND* binds, DatabaseAction* action);
 
-	Query*			GetCompletedQueries() { return m_completedQueries.pop_all(); }
-	void			PushCompleted(Query* query) { m_completedQueries.push(query); }
-	void			DispatchCompletedQueries(lua_State* state);
+	DatabaseAction* GetCompletedActions() { return m_completedActions.pop_all(); }
+	void			DispatchCompletedActions(lua_State* state);
 
 	bool			SetCharacterSet(const char* charset, std::string& error);
 	char*			Escape(const char* query, unsigned int len);
@@ -124,7 +128,8 @@ private:
 	int				GetServerVersion();
 
 	void			QueueQuery(const char* query, int callback = -1, int callbackref = -1, bool usenumbers = false);
-	QueryQueue		m_completedQueries;
+
+	ActionQueue		m_completedActions;
 
 	std::vector<std::thread> thread_group;
 	asio::io_service io_service;

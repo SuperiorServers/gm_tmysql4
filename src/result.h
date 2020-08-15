@@ -4,27 +4,30 @@
 #include <string>
 #include <vector>
 
+class PStatement;
+
+typedef std::tuple<void*, unsigned int> ResultCell;
+
 class Result
 {
 public:
-	Result(MYSQL_RES* pResult, int iError, std::string strError, double iAffected, double iLastID) :
-		m_pResult(pResult), m_iError(iError), m_strError(strError), m_iAffected(iAffected), m_iLastID(iLastID)
-	{
-	}
+	Result(MYSQL* mysql);
+	Result(PStatement* pStmt);
 
-	~Result(void)
-	{
-		mysql_free_result(m_pResult);
-	}
-
-	void				PopulateLuaTable(lua_State* state, bool useNumbers);
+	void PopulateLuaTable(lua_State* state, bool useNumbers);
 
 private:
-	std::string			m_strError;
+	const char*			m_strError;
 	int					m_iError;
 	double				m_iLastID;
 	double				m_iAffected;
-	MYSQL_RES*			m_pResult;
+
+	void	Resize(int colCount, int rowCount);
+
+	std::vector<const char*>				m_columnNames;
+	std::vector<int>						m_columnTypes;
+	std::vector<std::vector<ResultCell>>	m_rows;
+	std::vector<std::vector<bool>>			m_nullRowValues;
 };
 
 typedef std::vector<Result*> Results;

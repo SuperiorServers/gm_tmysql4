@@ -6,6 +6,11 @@ using namespace GarrysMod::Lua;
 int tmysql::iRefDatabases = 0;
 bool tmysql::inShutdown = false;
 
+int tmysql::iDatabaseMTID = 0;
+int tmysql::iStatementMTID = 0;
+
+int iDBIndex = 0;
+
 int tmysql::lua_GetTable(lua_State* state)
 {
 	LUA->ReferencePush(iRefDatabases);
@@ -15,12 +20,7 @@ int tmysql::lua_GetTable(lua_State* state)
 int tmysql::lua_Create(lua_State* state)
 {
 	Database* mysqldb = createDatabase(state);
-
 	if (!mysqldb) return 0;
-
-	UserData* userdata = (UserData*)LUA->NewUserdata(sizeof(UserData));
-	userdata->data = mysqldb;
-	userdata->type = DATABASE_MT_ID;
 
 	mysqldb->PushHandle(state);
 
@@ -30,7 +30,6 @@ int tmysql::lua_Create(lua_State* state)
 int tmysql::lua_Connect(lua_State* state)
 {
 	Database* mysqldb = createDatabase(state);
-
 	if (!mysqldb) return 0;
 
 	std::string error;
@@ -77,7 +76,7 @@ Database* tmysql::createDatabase(lua_State* state)
 		callbackfunc = LUA->ReferenceCreate();
 	}
 
-	return new Database(
+	Database* mysqldb = new Database(
 		host,
 		user,
 		pass,
@@ -87,4 +86,13 @@ Database* tmysql::createDatabase(lua_State* state)
 		flags,
 		callbackfunc
 	);
+
+	// Insert database reference to the lua-accessible table
+	LUA->ReferencePush(tmysql::iRefDatabases);
+	LUA->PushNumber(++iDBIndex);
+	mysqldb->PushHandle(state);
+	LUA->SetTable(-3);
+	LUA->Pop();
+
+	return mysqldb;
 }

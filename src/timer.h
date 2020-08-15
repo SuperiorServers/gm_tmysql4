@@ -16,11 +16,12 @@ class Timer
 {
 public:
 	Timer();
-	double GetElapsedSeconds();
+	double	GetElapsedSeconds();
 
 private:
 	LARGE_INTEGER frequency;
 	LARGE_INTEGER startTick;
+	LARGE_INTEGER endTick;
 };
 
 #endif

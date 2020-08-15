@@ -34,12 +34,11 @@ Timer::Timer()
 
 double Timer::GetElapsedSeconds()
 {
-	LARGE_INTEGER currentTick;
-	QueryPerformanceCounter(&currentTick);
+	QueryPerformanceCounter(&endTick);
 #ifdef _WIN32
-	return (double)(currentTick.QuadPart - startTick.QuadPart) / frequency.QuadPart;
+	return (double)(endTick.QuadPart - startTick.QuadPart) / frequency.QuadPart;
 #else
-	return (double)(currentTick - startTick) / NSEC_PER_SEC;
+	return (double)(endTick - startTick) / NSEC_PER_SEC;
 #endif
 }
 

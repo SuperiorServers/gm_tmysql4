@@ -3,8 +3,10 @@
 
 #define GMOD_ALLOW_DEPRECATED
 
+#define MODULE_VERSION 4.3
+
 #define DATABASE_MT_NAME "Database"
-#define DATABASE_MT_ID 200
+#define PSTMT_MT_NAME "PreparedStatement"
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -24,8 +26,17 @@
 
 #endif
 
+#include <condition_variable>
 #include <mysql.h>
 
 #include "Lua/Interface.h"
+
+class my_exception : public std::runtime_error {
+public:
+	my_exception(int errNo, const char* errMsg) : runtime_error(errMsg), errorNumber(errNo) { }
+	const int errorNumber;
+};
+
+#define ThrowException(mysql) throw my_exception(mysql_errno(mysql), mysql_error(mysql))
 
 #endif

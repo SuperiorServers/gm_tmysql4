@@ -1,5 +1,6 @@
 #include "main.h"
 #include "tmysql.h"
+#include "statement.h"
 
 GMOD_MODULE_OPEN()
 {
@@ -14,7 +15,7 @@ GMOD_MODULE_OPEN()
 	{
 		LUA->CreateTable();
 		{
-			LUA->PushNumber(4.2);
+			LUA->PushNumber(MODULE_VERSION);
 			LUA->SetField(-2, "Version");
 
 			LUA->PushCFunction(tmysql::lua_Create);
@@ -157,15 +158,21 @@ GMOD_MODULE_OPEN()
 	}
 	LUA->Pop();
 
-	LUA->CreateMetaTableType(DATABASE_MT_NAME, DATABASE_MT_ID);
+	tmysql::iDatabaseMTID = LUA->CreateMetaTable(DATABASE_MT_NAME);
 	{
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
 
+		LUA->PushCFunction(Database::lua___gc);
+		LUA->SetField(-2, "__gc");
+
 		LUA->PushCFunction(Database::lua_IsValid);
 		LUA->SetField(-2, "IsValid");
+
 		LUA->PushCFunction(Database::lua_Query);
 		LUA->SetField(-2, "Query");
+		LUA->PushCFunction(Database::lua_Prepare);
+		LUA->SetField(-2, "Prepare");
 		LUA->PushCFunction(Database::lua_Escape);
 		LUA->SetField(-2, "Escape");
 		LUA->PushCFunction(Database::lua_SetOption);
@@ -187,7 +194,23 @@ GMOD_MODULE_OPEN()
 		LUA->PushCFunction(Database::lua_Poll);
 		LUA->SetField(-2, "Poll");
 	}
-	LUA->Pop(1);
+	LUA->Pop();
+
+	tmysql::iStatementMTID = LUA->CreateMetaTable(PSTMT_MT_NAME);
+	{
+		LUA->Push(-1);
+		LUA->SetField(-2, "__index");
+
+		LUA->PushCFunction(PStatement::lua___gc);
+		LUA->SetField(-2, "__gc");
+
+		LUA->PushCFunction(PStatement::lua_IsValid);
+		LUA->SetField(-2, "IsValid");
+
+		LUA->PushCFunction(PStatement::lua_Run);
+		LUA->SetField(-2, "Run");
+	}
+	LUA->Pop();
 
 	return 0;
 }
@@ -204,13 +227,10 @@ GMOD_MODULE_CLOSE()
 	{
 		LUA->Push(-2);
 
-		if (LUA->IsType(-2, DATABASE_MT_ID))
-		{
-			Database* mysqldb = *reinterpret_cast<Database**>(LUA->GetUserdata(-2));
+		Database* mysqldb = LUA->GetUserType<Database>(-2, tmysql::iDatabaseMTID);
 
-			if (mysqldb)
-				mysqldb->Disconnect(state);
-		}
+		if (mysqldb != nullptr)
+			mysqldb->Disconnect(state);
 
 		LUA->Pop(2);
 	}
@@ -218,5 +238,6 @@ GMOD_MODULE_CLOSE()
 
 	LUA->ReferenceFree(tmysql::iRefDatabases);
 	mysql_library_end();
+
 	return 0;
 }
