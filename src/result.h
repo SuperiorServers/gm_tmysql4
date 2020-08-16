@@ -6,13 +6,12 @@
 
 class PStatement;
 
-typedef std::tuple<void*, unsigned int> ResultCell;
-
 class Result
 {
 public:
 	Result(MYSQL* mysql);
 	Result(PStatement* pStmt);
+	~Result();
 
 	void PopulateLuaTable(lua_State* state, bool useNumbers);
 
@@ -24,9 +23,9 @@ private:
 
 	void	Resize(int colCount, int rowCount);
 
-	std::vector<const char*>				m_columnNames;
+	std::vector<std::string>				m_columnNames;
 	std::vector<int>						m_columnTypes;
-	std::vector<std::vector<ResultCell>>	m_rows;
+	std::vector<std::vector<std::string>>	m_rows;
 	std::vector<std::vector<bool>>			m_nullRowValues;
 };
 

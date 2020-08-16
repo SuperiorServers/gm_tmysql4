@@ -2,10 +2,11 @@
 #include "result.h"
 #include "statement.h"
 
-#define first(var) std::get<0>(var)
-#define second(var) std::get<1>(var)
-
 using namespace GarrysMod::Lua;
+
+Result::~Result()
+{
+}
 
 Result::Result(MYSQL* mysql) :
 	m_iError(mysql_errno(mysql)),
@@ -29,6 +30,7 @@ Result::Result(MYSQL* mysql) :
 	for (int i = 0; i < colCount; i++)
 	{
 		auto field = mysql_fetch_field_direct(pResult, i);
+
 		m_columnNames[i] = field->name;
 		m_columnTypes[i] = field->type;
 	}
@@ -40,7 +42,7 @@ Result::Result(MYSQL* mysql) :
 		for (int n = 0; n < colCount; n++)
 		{
 			if (row[n])
-				m_rows[i][n] = ResultCell(row[n], len[n]);
+				m_rows[i][n] = row[n];
 			else
 				m_nullRowValues[i][n] = true;
 		}
@@ -106,7 +108,7 @@ Result::Result(PStatement* pStmt) :
 			for (unsigned int n = 0; n < colCount; n++)
 			{
 				if (!*(bdata[n].is_null) && bdata[n].buffer)
-					m_rows[i][n] = ResultCell(bdata[n].buffer, *bdata[n].length);
+					m_rows[i][n] = static_cast<char*>(bdata[n].buffer);
 				else
 					m_nullRowValues[i][n] = true;
 			}
@@ -182,14 +184,14 @@ void Result::PopulateLuaTable(lua_State* state, bool useNumbers)
 				if (m_nullRowValues[r][c])
 					LUA->PushNil();
 				else if (IS_NUM(m_columnTypes[c]) && m_columnTypes[c] != MYSQL_TYPE_LONGLONG)
-					LUA->PushNumber(atof((const char*)first(m_rows[r][c])));
+					LUA->PushNumber(atof(m_rows[r][c].c_str()));
 				else
-					LUA->PushString((const char*)first(m_rows[r][c]), second(m_rows[r][c]));
+					LUA->PushString(m_rows[r][c].c_str(), m_rows[r][c].length());
 
 				if (useNumbers == true)
 					LUA->SetTable(-3);
 				else
-					LUA->SetField(-2, m_columnNames[c]);
+					LUA->SetField(-2, m_columnNames[c].c_str());
 			}
 
 			LUA->SetTable(-3);
