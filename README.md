@@ -22,6 +22,7 @@ Added:
   Write a query with ? in place of your input to recycle the query object
   This is much more efficient and faster than running a traditional query many times with different data
   Additionally, inputs do not need to be escaped for prepared statements
+  Returns nil, string if there was a problem preparing the statement
 
 * PreparedStatement:Run(..., Function callback, Object anything, Boolean ColumnNumbers)
   Write your parameters in the function call first,
@@ -152,7 +153,12 @@ Database:Query( "SELECT * FROM some_table", GAMEMODE.OurMySQLCallback, GAMEMODE 
 
 #### Prepared query data retrieval
 ``` lua
-local statement = Database:Prepare( "SELECT * FROM some_table WHERE steamid = ?" )
+local statement, err = Database:Prepare( "SELECT * FROM some_table WHERE steamid = ?" )
+
+if (!statement)
+	ErrorNoHalt(err)
+	return
+end
 
 for k, v in ipairs( player.GetAll() ) do
 	statement:Run(v:SteamID64(), onPlayerCompleted, v)
