@@ -103,7 +103,7 @@ int PStatement::lua_Run(lua_State* state)
 	}
 
 	MYSQL_BIND* binds = new MYSQL_BIND[stmt->m_numArgs];
-	::ZeroMemory(binds, sizeof(MYSQL_BIND) * stmt->m_numArgs);
+	memset(binds, 0, sizeof(MYSQL_BIND) * stmt->m_numArgs);
 
 	for (int i = 0; i < stmt->m_numArgs; i++)
 	{
