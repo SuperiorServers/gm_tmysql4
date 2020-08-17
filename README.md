@@ -26,6 +26,9 @@ Added:
 * PreparedStatement:Run(..., Function callback, Object anything, Boolean ColumnNumbers)
   Write your parameters in the function call first,
   followed by an optional callback function, object to pass to the callback, and boolean switch for named/numbered columns
+
+* PreparedStatement:GetArgCount()
+  Returns the number of parameters that MySQL expects in order to run the statement
 ```
 ### 4.1 -> 4.2
 ```
