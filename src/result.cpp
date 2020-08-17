@@ -10,11 +10,12 @@ Result::~Result()
 
 Result::Result(MYSQL* mysql) :
 	m_iError(mysql_errno(mysql)),
-	m_iLastID(mysql_insert_id(mysql)),
-	m_iAffected(mysql_affected_rows(mysql)),
 	m_strError(mysql_error(mysql))
 {
 	MYSQL_RES* pResult = mysql_store_result(mysql);
+
+	m_iLastID = mysql_insert_id(mysql);
+	m_iAffected = mysql_affected_rows(mysql);
 
 	if (pResult == nullptr)
 	{
@@ -53,8 +54,6 @@ Result::Result(MYSQL* mysql) :
 
 Result::Result(PStatement* pStmt) :
 	m_iError(mysql_stmt_errno(pStmt->GetInternal())),
-	m_iLastID(mysql_stmt_insert_id(pStmt->GetInternal())),
-	m_iAffected(mysql_stmt_affected_rows(pStmt->GetInternal())),
 	m_strError(mysql_stmt_error(pStmt->GetInternal()))
 {
 	auto stmt = pStmt->GetInternal();
@@ -67,6 +66,9 @@ Result::Result(PStatement* pStmt) :
 		mysql_free_result(pResult);
 		return;
 	}
+
+	m_iLastID = mysql_stmt_insert_id(pStmt->GetInternal());
+	m_iAffected = mysql_stmt_affected_rows(pStmt->GetInternal());
 
 	int colCount = mysql_stmt_field_count(stmt);
 	int rowCount = mysql_stmt_num_rows(stmt);
