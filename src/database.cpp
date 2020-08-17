@@ -328,13 +328,15 @@ int Database::lua_Prepare(lua_State* state)
 	Database* mysqldb = LUA->GetUserType<Database>(1, tmysql::iDatabaseMTID);
 
 	if (mysqldb == nullptr) {
-		LUA->ThrowError("Attempted to call Query on a shutdown database");
-		return 0;
+		LUA->PushNil();
+		LUA->PushString("Attempted to call Query on a shutdown database");
+		return 2;
 	}
 
 	if (!mysqldb->IsConnected()) {
-		LUA->ThrowError("Attempted to call Query on a disconnected database");
-		return 0;
+		LUA->PushNil();
+		LUA->PushString("Attempted to call Query on a disconnected database");
+		return 2;
 	}
 
 	PStatement* stmt;
@@ -344,8 +346,9 @@ int Database::lua_Prepare(lua_State* state)
 	}
 	catch (const my_exception& error)
 	{
-		LUA->ThrowError(error.what());
-		return 0;
+		LUA->PushNil();
+		LUA->PushString(error.what());
+		return 2;
 	}
 
 	stmt->PushHandle(state);
