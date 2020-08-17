@@ -207,6 +207,9 @@ GMOD_MODULE_OPEN()
 		LUA->PushCFunction(PStatement::lua_IsValid);
 		LUA->SetField(-2, "IsValid");
 
+		LUA->PushCFunction(PStatement::lua_GetArgCount);
+		LUA->SetField(-2, "GetArgCount");
+
 		LUA->PushCFunction(PStatement::lua_Run);
 		LUA->SetField(-2, "Run");
 	}

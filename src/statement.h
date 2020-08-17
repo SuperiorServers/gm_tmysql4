@@ -16,6 +16,7 @@ public:
 
 	static int	lua___gc(lua_State* state);
 	static int	lua_IsValid(lua_State* state);
+	static int	lua_GetArgCount(lua_State* state);
 	static int	lua_Run(lua_State* state);
 private:
 	Database*	m_database;

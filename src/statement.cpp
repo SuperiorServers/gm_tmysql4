@@ -83,6 +83,16 @@ int PStatement::lua_IsValid(lua_State* state)
 	return 1;
 }
 
+int PStatement::lua_GetArgCount(lua_State* state)
+{
+	LUA->CheckType(1, tmysql::iStatementMTID);
+
+	PStatement* pstmt = LUA->GetUserType<PStatement>(1, tmysql::iStatementMTID);
+	LUA->PushNumber(mysql_stmt_param_count(pstmt->GetInternal()));
+
+	return 1;
+}
+
 int PStatement::lua_Run(lua_State* state)
 {
 	LUA->CheckType(1, tmysql::iStatementMTID);
