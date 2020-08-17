@@ -46,11 +46,15 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 		}
 	}
 
-	int status = 0;
-	while (status != -1) {
-		mysql_stmt_store_result(m_stmt);
-		action->AddResult(new Result(this));
-		status = mysql_stmt_next_result(m_stmt);
+	if (errorno != 0)
+		action->AddResult(new Result(errorno, mysql_stmt_error(m_stmt)));
+	else {
+		int status = 0;
+		while (status != -1) {
+			mysql_stmt_store_result(m_stmt);
+			action->AddResult(new Result(this));
+			status = mysql_stmt_next_result(m_stmt);
+		}
 	}
 
 	for (int l = 0; l < m_numArgs; l++)

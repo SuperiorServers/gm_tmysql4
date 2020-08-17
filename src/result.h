@@ -9,6 +9,7 @@ class PStatement;
 class Result
 {
 public:
+	Result(int errNo, const char* errStr) : m_iError(errNo), m_strError(errStr) { }
 	Result(MYSQL* mysql);
 	Result(PStatement* pStmt);
 	~Result();

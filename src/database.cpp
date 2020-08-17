@@ -155,10 +155,9 @@ void Database::RunQuery(Query* query)
 	size_t len = strquery.length();
 
 	bool hasRetried = false;
+	unsigned int errorno = NULL;
 
 	retry:
-
-	unsigned int errorno = NULL;
 	if (mysql_real_query(m_MySQL, strquery.c_str(), len) != 0) {
 
 		errorno = mysql_errno(m_MySQL);
@@ -169,11 +168,15 @@ void Database::RunQuery(Query* query)
 		}
 	}
 	
-	int status = 0;
-	while (status != -1) {
-		query->AddResult(new Result(m_MySQL));
+	if (errorno != 0)
+		query->AddResult(new Result(errorno, mysql_error(m_MySQL)));
+	else {
+		int status = 0;
+		while (status != -1) {
+			query->AddResult(new Result(m_MySQL));
 
-		status = mysql_next_result(m_MySQL);
+			status = mysql_next_result(m_MySQL);
+		}
 	}
 
 	m_completedActions.push(query);
