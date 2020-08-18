@@ -43,7 +43,7 @@ Result::Result(MYSQL* mysql) :
 		for (int n = 0; n < colCount; n++)
 		{
 			if (row[n])
-				m_rows[i][n] = row[n];
+				m_rows[i][n] = std::string(row[n], len[n]);
 			else
 				m_nullRowValues[i][n] = true;
 		}
@@ -110,7 +110,7 @@ Result::Result(PStatement* pStmt) :
 			for (unsigned int n = 0; n < colCount; n++)
 			{
 				if (!*(bdata[n].is_null) && bdata[n].buffer)
-					m_rows[i][n] = static_cast<char*>(bdata[n].buffer);
+					m_rows[i][n] = std::string(static_cast<char*>(bdata[n].buffer), *bdata[n].length);
 				else
 					m_nullRowValues[i][n] = true;
 			}
