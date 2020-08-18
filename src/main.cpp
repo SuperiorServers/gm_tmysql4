@@ -204,6 +204,9 @@ GMOD_MODULE_OPEN()
 		LUA->PushCFunction(PStatement::lua___gc);
 		LUA->SetField(-2, "__gc");
 
+		LUA->PushCFunction(PStatement::lua_Run);
+		LUA->SetField(-2, "__call");
+
 		LUA->PushCFunction(PStatement::lua_IsValid);
 		LUA->SetField(-2, "IsValid");
 
