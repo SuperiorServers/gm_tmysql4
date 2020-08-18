@@ -13,6 +13,9 @@ PStatement::PStatement(MYSQL* conn, Database* parent, const char* query)
 	if (m_stmt == nullptr)
 		ThrowException(conn);
 
+	bool attr = 1;
+	mysql_stmt_attr_set(m_stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &attr);
+
 	if (mysql_stmt_prepare(m_stmt, query, strlen(query)) != 0)
 		ThrowException(conn);
 

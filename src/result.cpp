@@ -91,9 +91,9 @@ Result::Result(PStatement* pStmt) :
 		// I really don't like making prepped statements mimic the char array style of MYSQL_ROW
 		// I'll probably write something someday to make more efficient use of the buffer types
 		bind.buffer_type = MYSQL_TYPE_STRING;
-		buf.emplace_back(field->length);
+		buf.emplace_back(field->max_length);
 		bind.buffer = buf.back().data();
-		bind.buffer_length = field->length;
+		bind.buffer_length = field->max_length;
 		bind.length = &len[i];
 		bind.is_null = &nullValues[i];
 		bind.is_unsigned = 0;
