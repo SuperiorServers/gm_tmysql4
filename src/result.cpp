@@ -52,9 +52,11 @@ Result::Result(MYSQL* mysql) :
 	mysql_free_result(pResult);
 }
 
-Result::Result(PStatement* pStmt) :
+Result::Result(PStatement* pStmt, double LastID, double Affected) :
 	m_iError(mysql_stmt_errno(pStmt->GetInternal())),
-	m_strError(mysql_stmt_error(pStmt->GetInternal()))
+	m_strError(mysql_stmt_error(pStmt->GetInternal())),
+	m_iLastID(LastID),
+	m_iAffected(Affected)
 {
 	auto stmt = pStmt->GetInternal();
 
@@ -67,8 +69,10 @@ Result::Result(PStatement* pStmt) :
 		return;
 	}
 
-	m_iLastID = mysql_stmt_insert_id(pStmt->GetInternal());
-	m_iAffected = mysql_stmt_affected_rows(pStmt->GetInternal());
+	if (m_iAffected == ((uint64_t)-1)) { // sometimes it is (uint64_t)-1 in that case initialize the values again here
+		m_iLastID = mysql_stmt_insert_id(stmt);
+		m_iAffected = mysql_stmt_affected_rows(stmt);
+	}
 
 	int colCount = mysql_stmt_field_count(stmt);
 	int rowCount = mysql_stmt_num_rows(stmt);
@@ -153,7 +157,7 @@ void Result::PopulateLuaTable(lua_State* state, bool useNumbers)
 		LUA->SetField(-2, "errorid");
 	}
 	else {
-		LUA->PushNumber(m_iAffected == ((uint64_t)-1) ? -1 : m_iAffected);
+		LUA->PushNumber(m_iAffected == ((uint64_t)-1) ? -1.0 : m_iAffected);
 		LUA->SetField(-2, "affected");
 		LUA->PushNumber(m_iLastID);
 		LUA->SetField(-2, "lastid");
