@@ -69,11 +69,6 @@ Result::Result(PStatement* pStmt, double LastID, double Affected) :
 		return;
 	}
 
-	if (m_iAffected == ((uint64_t)-1)) { // sometimes it is (uint64_t)-1 in that case initialize the values again here
-		m_iLastID = mysql_stmt_insert_id(stmt);
-		m_iAffected = mysql_stmt_affected_rows(stmt);
-	}
-
 	int colCount = mysql_stmt_field_count(stmt);
 	int rowCount = mysql_stmt_num_rows(stmt);
 	Resize(colCount, rowCount);
