@@ -53,9 +53,11 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 		action->AddResult(new Result(errorno, mysql_stmt_error(m_stmt)));
 	else {
 		int status = 0;
+		double m_iLastID = mysql_stmt_insert_id(m_stmt); // init values here to reduce overhead, once they leave scope they seem to be invalid
+		double m_iAffected = mysql_stmt_affected_rows(m_stmt);
 		while (status != -1) {
 			mysql_stmt_store_result(m_stmt);
-			action->AddResult(new Result(this));
+			action->AddResult(new Result(this, m_iLastID, m_iAffected));
 			status = mysql_stmt_next_result(m_stmt);
 		}
 	}
