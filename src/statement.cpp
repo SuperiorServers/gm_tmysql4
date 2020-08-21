@@ -5,6 +5,24 @@
 
 using namespace GarrysMod::Lua;
 
+static void deleteBinds(MYSQL_BIND* binds, int count)
+{
+	for (int l = 0; l < count; l++)
+		switch (binds[l].buffer_type)
+		{
+		case MYSQL_TYPE_NULL:
+			break;
+		case MYSQL_TYPE_STRING:
+			delete[] binds[l].buffer;
+			break;
+		default:
+			delete binds[l].buffer;
+			break;
+		}
+
+	delete[] binds;
+}
+
 PStatement::PStatement(MYSQL* conn, Database* parent, const char* query)
 {
 	m_database = parent;
@@ -38,6 +56,11 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 	bool hasRetried = false;
 	unsigned int errorno = NULL;
 
+	for (int i = 0; i < m_numArgs; i++)
+		if (binds[i].buffer_type == MYSQL_TYPE_STRING)
+			if (strlen(static_cast<char*>(binds[i].buffer)) != binds[i].buffer_length)
+				binds[i].buffer_type = MYSQL_TYPE_BLOB;
+
 	retry:
 	mysql_stmt_bind_param(m_stmt, binds);
 	if (mysql_stmt_execute(m_stmt) != 0) {
@@ -60,10 +83,7 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 		}
 	}
 
-	for (int l = 0; l < m_numArgs; l++)
-		delete[] binds[l].buffer;
-
-	delete[] binds;
+	deleteBinds(binds, m_numArgs);
 }
 
 int PStatement::lua___gc(lua_State* state)
@@ -133,23 +153,26 @@ int PStatement::lua_Run(lua_State* state)
 		case Type::Enum::String:
 		{
 			unsigned int len;
-			auto str = LUA->GetString(i + 2, &len);
+			const char* str = LUA->GetString(i + 2, &len);
 
 			binds[i].buffer_type = MYSQL_TYPE_STRING;
 			binds[i].buffer_length = len;
-			binds[i].buffer = (void*)str;
+			binds[i].buffer = new char[len];
+
+			memcpy(binds[i].buffer, str, len);
+
 			break;
 		}
 		case Type::Enum::Bool:
 		{
 			binds[i].buffer_type = MYSQL_TYPE_BIT;
-			binds[i].buffer = (void*)new bool(LUA->GetBool(i + 2));
+			binds[i].buffer = new bool(LUA->GetBool(i + 2));
 			break;
 		}
 		case Type::Enum::Number:
 		{
 			binds[i].buffer_type = MYSQL_TYPE_DOUBLE;
-			binds[i].buffer = (void*)new double(LUA->GetNumber(i + 2));
+			binds[i].buffer = new double(LUA->GetNumber(i + 2));
 			break;
 		}
 		case Type::Enum::Nil:
@@ -159,10 +182,7 @@ int PStatement::lua_Run(lua_State* state)
 		}
 		default:
 		{
-			for (int l = 0; l < i; l++)
-				delete[] binds[l].buffer;
-
-			delete[] binds;
+			deleteBinds(binds, i);
 
 			char err[256];
 			sprintf(err, "Unexpected type '%s' in prepared parameter #%i: expected string, number, boolean, or nil", Type::Name[type], i + 1);
