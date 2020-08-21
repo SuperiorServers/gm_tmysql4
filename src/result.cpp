@@ -162,7 +162,7 @@ void Result::Resize(int colCount, int rowCount)
 	for (int i = 0; i < rowCount; i++)
 	{
 		m_rows[i] = new std::string[colCount];
-		m_nullRowValues[i] = new bool[colCount];
+		m_nullRowValues[i] = new bool[colCount] { 0 };
 	}
 }
 

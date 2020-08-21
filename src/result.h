@@ -21,8 +21,8 @@ private:
 	int					m_iError;
 	double				m_iLastID;
 	double				m_iAffected;
-	int					m_rowCount;
-	int					m_colCount;
+	int					m_rowCount = 0;
+	int					m_colCount = 0;
 
 	void	Resize(int colCount, int rowCount);
 
