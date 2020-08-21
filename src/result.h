@@ -21,13 +21,15 @@ private:
 	int					m_iError;
 	double				m_iLastID;
 	double				m_iAffected;
+	int					m_rowCount;
+	int					m_colCount;
 
 	void	Resize(int colCount, int rowCount);
 
-	std::vector<std::string>				m_columnNames;
-	std::vector<int>						m_columnTypes;
-	std::vector<std::vector<std::string>>	m_rows;
-	std::vector<std::vector<bool>>			m_nullRowValues;
+	std::string*	m_columnNames;
+	int*			m_columnTypes;
+	std::string**	m_rows;
+	bool**			m_nullRowValues;
 };
 
 typedef std::vector<Result*> Results;
