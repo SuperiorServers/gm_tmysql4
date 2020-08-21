@@ -51,12 +51,12 @@ int tmysql::lua_Connect(lua_State* state)
 
 Database* tmysql::createDatabase(lua_State* state)
 {
-	std::string host = LUA->CheckString(1);
-	std::string user = LUA->CheckString(2);
-	std::string pass = LUA->CheckString(3);
-	std::string db = LUA->CheckString(4);
+	const char* host = LUA->CheckString(1);
+	const char* user = LUA->CheckString(2);
+	const char* pass = LUA->CheckString(3);
+	const char* db = LUA->CheckString(4);
 	unsigned int port = 3306;
-	std::string unixSocket = "";
+	const char* unixSocket = "";
 	unsigned long flags = 0;
 
 	if (LUA->IsType(5, Type::Number))
