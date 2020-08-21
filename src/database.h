@@ -62,7 +62,7 @@ typedef waitfree_action_queue<DatabaseAction> ActionQueue;
 class Database
 {
 public:
-	Database(std::string host, std::string user, std::string pass, std::string db, unsigned int port, std::string socket, unsigned long flags, int callback);
+	Database(const char* host, const char* user, const char* pass, const char* db, unsigned int port, const char* socket, unsigned long flags, int callback);
 	~Database(void);
 
 	bool			Initialize(std::string& error);
@@ -95,12 +95,12 @@ public:
 private:
 	MYSQL*			m_MySQL;
 
-	std::string		m_strHost;
-	std::string		m_strUser;
-	std::string		m_strPass;
-	std::string		m_strDB;
+	char			m_strHost[253] = { 0 };
+	char			m_strUser[32] = { 0 };
+	char			m_strPass[32] = { 0 };
+	char			m_strDB[64] = { 0 };
 	unsigned int	m_iPort;
-	std::string		m_strSocket;
+	char			m_strSocket[107] = { 0 };
 	unsigned long	m_iClientFlags;
 
 	bool			m_bIsConnected;

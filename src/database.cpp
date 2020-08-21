@@ -5,9 +5,14 @@
 
 using namespace GarrysMod::Lua;
 
-Database::Database(std::string host, std::string user, std::string pass, std::string db, unsigned int port, std::string socket, unsigned long flags, int callback)
-	: m_strHost(host), m_strUser(user), m_strPass(pass), m_strDB(db), m_iPort(port), m_strSocket(socket), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL)
+Database::Database(const char* host, const char* user, const char* pass, const char* db, unsigned int port, const char* socket, unsigned long flags, int callback)
+	:  m_iPort(port), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL)
 {
+		strncpy(m_strHost, host, 253);
+		strncpy(m_strUser, user, 32);
+		strncpy(m_strPass, pass, 32);
+		strncpy(m_strDB, db, 64);
+		strncpy(m_strSocket, socket, 107);
 	work.reset(new asio::io_service::work(io_service));
 }
 
@@ -36,7 +41,7 @@ bool Database::Initialize(std::string& error)
 
 bool Database::Connect(std::string& error)
 {
-	const char* socket = (m_strSocket.length() == 0) ? nullptr : m_strSocket.c_str();
+	const char* socket = (strlen(m_strSocket) == 0) ? nullptr : m_strSocket;
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
 
 	my_bool tru = 1;
@@ -53,7 +58,7 @@ bool Database::Connect(std::string& error)
 		return false;
 	}
 
-	if (mysql_real_connect(m_MySQL, m_strHost.c_str(), m_strUser.c_str(), m_strPass.c_str(), m_strDB.c_str(), m_iPort, socket, flags) != m_MySQL)
+	if (mysql_real_connect(m_MySQL, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, socket, flags) != m_MySQL)
 	{
 		error.assign(mysql_error(m_MySQL));
 		return false;
