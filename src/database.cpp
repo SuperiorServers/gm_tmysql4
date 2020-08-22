@@ -291,12 +291,15 @@ int Database::lua__tostring(lua_State* state)
 	LUA->CheckType(1, tmysql::iDatabaseMTID);
 
 	Database* mysqldb = LUA->GetUserType<Database>(1, tmysql::iDatabaseMTID);
-
-	char buff[100] = { 0 };
-	sprintf_s(buff, 100, "[Tmysql4 database: %s]", mysqldb->m_strDB);
-	LUA->PushString(buff);
-
-	return 1;
+	
+	if (mysqldb != nullptr) {
+		char buff[100] = { 0 };
+		sprintf_s(buff, 100, "[Tmysql database: %s]", mysqldb->m_strDB);
+		LUA->PushString(buff);
+		return 1;
+	}
+	
+	return 0;
 }
 
 int Database::lua_IsValid(lua_State* state)
@@ -455,9 +458,12 @@ int Database::lua_GetDatabase(lua_State* state)
 
 	Database* mysqldb = LUA->GetUserType<Database>(1, tmysql::iDatabaseMTID);
 	
-	LUA->PushString(mysqldb->m_strDB);
+	if (mysqldb != nullptr) {
+		LUA->PushString(mysqldb->m_strDB);
+		return 1;
+	}
 	
-	return 1;
+	return 0;
 }
 
 int Database::lua_GetHostInfo(lua_State* state)
