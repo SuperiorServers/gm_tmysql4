@@ -102,7 +102,7 @@ int PStatement::lua___gc(lua_State* state)
 
 int PStatement::lua__tostring(lua_State* state)
 {
-	LUA->PushString("[Tmysql4 prepared statement]");
+	LUA->PushString("[Tmysql prepared statement]");
 	return 1;
 }
 
