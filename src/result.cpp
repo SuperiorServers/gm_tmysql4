@@ -6,6 +6,9 @@ using namespace GarrysMod::Lua;
 
 Result::~Result()
 {
+	if (m_colCount == 0)
+		return;
+
 	delete[] m_columnNames;
 	delete[] m_columnTypes;
 
@@ -39,6 +42,12 @@ Result::Result(MYSQL* mysql) :
 
 	int colCount = mysql_num_fields(pResult);
 	int rowCount = mysql_num_rows(pResult);
+
+	if (colCount == 0 && rowCount == 0)
+	{
+		mysql_free_result(pResult);
+		return;
+	}
 
 	Resize(colCount, rowCount);
 
@@ -85,6 +94,13 @@ Result::Result(PStatement* pStmt) :
 
 	int colCount = mysql_stmt_field_count(stmt);
 	int rowCount = mysql_stmt_num_rows(stmt);
+
+	if (colCount == 0 && rowCount == 0)
+	{
+		mysql_free_result(pResult);
+		return;
+	}
+
 	Resize(colCount, rowCount);
 
 	MYSQL_BIND* binds = new MYSQL_BIND[colCount];
