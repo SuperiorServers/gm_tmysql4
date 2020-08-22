@@ -162,13 +162,12 @@ GMOD_MODULE_OPEN()
 	{
 		LUA->Push(-1);
 		LUA->SetField(-2, "__index");
-
 		LUA->PushCFunction(Database::lua___gc);
 		LUA->SetField(-2, "__gc");
-
+		LUA->PushCFunction(Database::lua__tostring);
+		LUA->SetField(-2, "__tostring");
 		LUA->PushCFunction(Database::lua_IsValid);
 		LUA->SetField(-2, "IsValid");
-
 		LUA->PushCFunction(Database::lua_Query);
 		LUA->SetField(-2, "Query");
 		LUA->PushCFunction(Database::lua_Prepare);
@@ -179,6 +178,8 @@ GMOD_MODULE_OPEN()
 		LUA->SetField(-2, "SetOption");
 		LUA->PushCFunction(Database::lua_GetServerInfo);
 		LUA->SetField(-2, "GetServerInfo");
+		LUA->PushCFunction(Database::lua_GetDatabase);
+		LUA->SetField(-2, "GetDatabase");
 		LUA->PushCFunction(Database::lua_GetHostInfo);
 		LUA->SetField(-2, "GetHostInfo");
 		LUA->PushCFunction(Database::lua_GetServerVersion);
@@ -203,6 +204,9 @@ GMOD_MODULE_OPEN()
 
 		LUA->PushCFunction(PStatement::lua___gc);
 		LUA->SetField(-2, "__gc");
+
+		LUA->PushCFunction(PStatement::lua__tostring);
+		LUA->SetField(-2, "__tostring");
 
 		LUA->PushCFunction(PStatement::lua_Run);
 		LUA->SetField(-2, "__call");
