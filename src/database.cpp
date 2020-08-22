@@ -162,6 +162,8 @@ void Database::RunQuery(Query* query)
 	bool hasRetried = false;
 	unsigned int errorno = NULL;
 
+	query->GetTimer()->Start();
+
 	retry:
 	if (mysql_real_query(m_MySQL, strquery.c_str(), len) != 0) {
 
@@ -172,6 +174,8 @@ void Database::RunQuery(Query* query)
 			goto retry;
 		}
 	}
+
+	query->GetTimer()->Stop();
 	
 	if (errorno != 0)
 		query->AddResult(new Result(errorno, mysql_error(m_MySQL)));

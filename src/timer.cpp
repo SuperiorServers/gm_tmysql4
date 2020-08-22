@@ -2,44 +2,28 @@
 
 #include "timer.h"
 
-#ifndef _WIN32
-	void QueryPerformanceCounter(LARGE_INTEGER* count)
-	{
-		LARGE_INTEGER nsec_count, nsec_per_tick;
-		struct timespec ts1, ts2;
+using namespace std::chrono;
 
-		if (clock_gettime(CLOCK_MONOTONIC, &ts1) != 0) {
-			return;
-		}
-
-		nsec_count = ts1.tv_nsec + ts1.tv_sec * NSEC_PER_SEC;
-
-		if (clock_getres(CLOCK_MONOTONIC, &ts2) != 0) {
-			return;
-		}
-
-		nsec_per_tick = ts2.tv_nsec + ts2.tv_sec * NSEC_PER_SEC;
-
-		*count = (LARGE_INTEGER) (nsec_count / nsec_per_tick);
-	}
-#endif
-
-Timer::Timer()
+Timer::~Timer()
 {
-#ifdef _WIN32
-	QueryPerformanceFrequency(&frequency);
-#endif
-	QueryPerformanceCounter(&startTick);
+}
+
+void Timer::Start()
+{
+	startTime = steady_clock::now();
+	return;
+}
+
+void Timer::Stop()
+{
+	endTime = steady_clock::now();
+	return;
 }
 
 double Timer::GetElapsedSeconds()
 {
-	QueryPerformanceCounter(&endTick);
-#ifdef _WIN32
-	return (double)(endTick.QuadPart - startTick.QuadPart) / frequency.QuadPart;
-#else
-	return (double)(endTick - startTick) / NSEC_PER_SEC;
-#endif
+	duration<double, std::nano> elapsed = endTime - startTime;
+	return elapsed.count() / 1e9;
 }
 
 #endif

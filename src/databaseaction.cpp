@@ -3,6 +3,22 @@
 
 using namespace GarrysMod::Lua;
 
+DatabaseAction::DatabaseAction(int callback = -1, int callbackref = -1, bool usenumbers = false) :
+	m_iCallback(callback), m_iCallbackRef(callbackref), m_bUseNumbers(usenumbers)
+{
+#ifdef ENABLE_QUERY_TIMERS
+	m_queryTimer = new Timer();
+#endif
+}
+DatabaseAction::~DatabaseAction(void)
+{
+	for (Results::iterator it = m_pResults.begin(); it != m_pResults.end(); ++it)
+		delete* it;
+#ifdef ENABLE_QUERY_TIMERS
+	delete m_queryTimer;
+#endif
+}
+
 void DatabaseAction::TriggerCallback(lua_State* state)
 {
 	if (m_iCallback < 0)
@@ -39,7 +55,7 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 			result->PopulateLuaTable(state, m_bUseNumbers);
 
 #ifdef ENABLE_QUERY_TIMERS
-			LUA->PushNumber(GetTimer().GetElapsedSeconds());
+			LUA->PushNumber(GetTimer()->GetElapsedSeconds());
 			LUA->SetField(-2, "time");
 #endif
 		}

@@ -7,15 +7,8 @@
 class DatabaseAction
 {
 public:
-	DatabaseAction(int callback = -1, int callbackref = -1, bool usenumbers = false) :
-		m_iCallback(callback), m_iCallbackRef(callbackref), m_bUseNumbers(usenumbers)
-	{
-	}
-	~DatabaseAction(void)
-	{
-		for (Results::iterator it = m_pResults.begin(); it != m_pResults.end(); ++it)
-			delete* it;
-	}
+	DatabaseAction(int callback, int callbackref, bool usenumbers);
+	~DatabaseAction(void);
 
 	DatabaseAction* next;
 
@@ -32,9 +25,9 @@ private:
 
 #ifdef ENABLE_QUERY_TIMERS
 public:
-	Timer				GetTimer() { return m_queryTimer; }
+	Timer*				GetTimer() { return m_queryTimer; }
 private:
-	Timer				m_queryTimer;
+	Timer*				m_queryTimer;
 #endif
 };
 

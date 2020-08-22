@@ -3,25 +3,19 @@
 #ifndef TMYSQL4_TIMER
 #define TMYSQL4_TIMER
 
-#ifdef _WIN32
-	#include <windows.h>
-#else
-	#include <time.h>
-	#include <stdint.h>
-	#define NSEC_PER_SEC (1000000000L)
-	typedef int64_t LARGE_INTEGER;
-#endif
+#include <chrono>
 
 class Timer
 {
 public:
-	Timer();
+	~Timer();
 	double	GetElapsedSeconds();
+	void	Start();
+	void	Stop();
 
 private:
-	LARGE_INTEGER frequency;
-	LARGE_INTEGER startTick;
-	LARGE_INTEGER endTick;
+	std::chrono::steady_clock::time_point startTime;
+	std::chrono::steady_clock::time_point endTime;
 };
 
 #endif
