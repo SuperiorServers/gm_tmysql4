@@ -78,12 +78,14 @@ public:
 
 	// Lua metamethods
 	static int		lua___gc(lua_State* state);
+	static int		lua__tostring(lua_State* state);
 	static int		lua_IsValid(lua_State* state);
 	static int		lua_Query(lua_State* state);
 	static int		lua_Prepare(lua_State* state);
 	static int		lua_Escape(lua_State* state);
 	static int		lua_SetOption(lua_State* state);
 	static int		lua_GetServerInfo(lua_State* state);
+	static int		lua_GetDatabase(lua_State* state);
 	static int		lua_GetHostInfo(lua_State* state);
 	static int		lua_GetServerVersion(lua_State* state);
 	static int		lua_Connect(lua_State* state);

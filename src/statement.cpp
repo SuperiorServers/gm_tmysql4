@@ -100,6 +100,12 @@ int PStatement::lua___gc(lua_State* state)
 	return 0;
 }
 
+int PStatement::lua__tostring(lua_State* state)
+{
+	LUA->PushString("[Tmysql prepared statement]");
+	return 1;
+}
+
 int PStatement::lua_IsValid(lua_State* state)
 {
 	LUA->CheckType(1, tmysql::iStatementMTID);
