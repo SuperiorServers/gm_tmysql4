@@ -106,6 +106,7 @@ private:
 	unsigned long	m_iClientFlags;
 
 	bool			m_bIsConnected;
+	bool			m_bIsInGC;
 
 	bool			m_bIsPendingCallback;
 	int				m_iCallback;

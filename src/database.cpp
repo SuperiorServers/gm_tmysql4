@@ -6,7 +6,7 @@
 using namespace GarrysMod::Lua;
 
 Database::Database(const char* host, const char* user, const char* pass, const char* db, unsigned int port, const char* socket, unsigned long flags, int callback)
-	:  m_iPort(port), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL)
+	:  m_iPort(port), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL), m_bIsInGC(false)
 {
 		strncpy(m_strHost, host, 253);
 		strncpy(m_strUser, user, 32);
@@ -255,7 +255,7 @@ void Database::DispatchCompletedActions(lua_State* state)
 	{
 		DatabaseAction* action = completed;
 
-		if (!tmysql::inShutdown)
+		if (!tmysql::inShutdown && !m_bIsInGC)
 			action->TriggerCallback(state);
 
 		completed = action->next;
@@ -280,7 +280,10 @@ int Database::lua___gc(lua_State* state)
 	Database* mysqldb = LUA->GetUserType<Database>(1, tmysql::iDatabaseMTID);
 
 	if (mysqldb != nullptr)
+	{
+		mysqldb->m_bIsInGC = true;
 		mysqldb->Disconnect(state);
+	}
 
 	return 0;
 
