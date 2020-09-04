@@ -7,13 +7,24 @@
 
 Compiling should work out of the box for both Visual Studio and GCC as long as you use the premake script
 
-On Linux, make sure the compiler is using the C++11 standard library. You should be linking directly to libmariadbclient.a as well.
+On Linux, make sure the compiler is using the C++17 standard library. You should be linking directly to libmariadbclient.a as well.
+You may also need to install libssl-dev.
 
 On Windows, make sure the module is compiling as multi-threaded DLL (/MD flag) and that mariadbclient.lib is being linked.
 
 For any other issues, just verify all include directories are properly set up.
 
 # Changes
+### 4.3 -> 4.35
+```
+* Module now takes advantage of newer asio types
+* Fixed a couple issues in source that prevented linux from compiling out of the box
+* Added safeguards for gc being called twice and crashing the module
+* Provided mariadbclient libs now have caching_sha2_password statically linked
+  (this was accomplished by compiling mariadbclient from source, setting caching_sha2_password
+  to static rather than dynamic (and using openssl instead of gnutls on linux))
+  You'll have to follow this process as well if you prefer to compile libmariadbclient yourself as well.
+```
 ### 4.2 -> 4.3
 ```
 Added:
@@ -38,7 +49,8 @@ Connector/C is now based on MariaDB 10.5.4
 
 Module will now search for and load MySQL plugins inside lua/bin.
 * Rejoice, for now we can connect to MySQL 8 servers using caching_sha2_password!
-  (hint: copy caching_sha2_password.dll or caching_sha2_password.so into lua/bin and it'll just work)
+  ~~(hint: copy caching_sha2_password.dll or caching_sha2_password.so into lua/bin and it'll just work)~~
+  **Superceded in 4.35 - caching_sha2_password is now statically linked and copying files is no longer necessary
 
 Removed:
 * tmysql.flags.CLIENT_LONG_PASSWORD (obsolete now)
