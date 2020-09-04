@@ -136,7 +136,7 @@ private:
 
 	std::vector<std::thread> thread_group;
 	asio::io_service io_service;
-	std::auto_ptr<asio::io_service::work> work;
+	std::unique_ptr<asio::io_service::work> work;
 };
 
 #endif
