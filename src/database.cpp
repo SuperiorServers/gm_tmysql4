@@ -59,7 +59,7 @@ bool Database::Connect(std::string& error)
 
 	if (mysql_real_connect(m_MySQL, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, socket, flags) != m_MySQL)
 	{
-		error.assign(mysql_error(m_MySQL));
+		error.assign("[" + std::to_string(mysql_errno(m_MySQL)) + "] " + std::string(mysql_error(m_MySQL)));
 		return false;
 	}
 
