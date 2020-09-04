@@ -50,6 +50,15 @@
 #  define close _close
 #endif
 
+// symbol lookup error: undefined symbol: _read (fatal) 
+// this fixes linux :')
+#ifndef WIN32
+#  define _open open
+#  define _read read
+#  define _write write
+#  define _close close
+#endif
+
 #ifdef NO_DEFLATE       /* for compatibility with old definition */
 #  define NO_GZCOMPRESS
 #endif

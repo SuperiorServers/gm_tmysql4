@@ -9,7 +9,7 @@ solution "tmysql4"
 	location ( osname .."-".. _ACTION )
 	
 	flags { "NoPCH" }
-	symbols "On"
+	symbols "Off"
 	editandcontinue "Off"
 	vectorextensions "SSE"
 	staticruntime "Off"
@@ -32,7 +32,8 @@ solution "tmysql4"
 	
 	configuration "Release"
 		if (osname == "linux") then
-			buildoptions { "-std=c++0x -pthread -Wl,-z,defs" }
+			buildoptions { "-std=c++17 -pthread -Wl,-z,defs" }			
+			linkoptions { "-lpthread", "-lcrypto", "-lssl" }
 		end
 
 		defines { "NDEBUG" }
