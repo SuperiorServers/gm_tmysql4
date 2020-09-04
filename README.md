@@ -15,7 +15,14 @@ On Windows, make sure the module is compiling as multi-threaded DLL (/MD flag) a
 For any other issues, just verify all include directories are properly set up.
 
 # Changes
-### 4.3 -> 4.35
+### 4.35 -> 4.37 : No breaking changes
+```
+* References to databases and statements are now properly invalidated on disconnect/gc
+* tmysql.GetTable() now generates a table instead of maintaining and reusing a Lua table
+* Metamethods properly error when being ran on an invalidated database/statement (and when necessary, disconnected databases also)
+```
+
+### 4.3 -> 4.35 : No breaking changes
 ```
 * Module now takes advantage of newer asio types
 * Fixed a couple issues in source that prevented linux from compiling out of the box
@@ -25,7 +32,7 @@ For any other issues, just verify all include directories are properly set up.
   to static rather than dynamic (and using openssl instead of gnutls on linux))
   You'll have to follow this process as well if you prefer to compile libmariadbclient yourself as well.
 ```
-### 4.2 -> 4.3
+### 4.2 -> 4.3 : Prepared Statements
 ```
 Added:
 * Database:Prepare(String query)
@@ -42,7 +49,7 @@ Added:
 * PreparedStatement:GetArgCount()
   Returns the number of parameters that MySQL expects in order to run the statement
 ```
-### 4.1 -> 4.2
+### 4.1 -> 4.2 : caching_sha2_password support
 ```
 Connector/C is now based on MariaDB 10.5.4
 * Oracle does not supply 32bit versions of MySQL's newest C API libraries.
@@ -56,7 +63,7 @@ Removed:
 * tmysql.flags.CLIENT_LONG_PASSWORD (obsolete now)
 ```
 
-### 4 -> 4.1
+### 4 -> 4.1 : Breaks backwards compatibility
 ```
 Renamed:
 * tmysql.initalize -> tmysql.Connect  
