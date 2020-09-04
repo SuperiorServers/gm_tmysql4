@@ -23,7 +23,7 @@ solution "tmysql4"
 	targetextension ".dll"
 
 	if osname == "windows" then
-		links { "mariadbclient" }
+		links { "mariadbclient", "bcrypt" }
 	elseif osname == "linux" then
 		links { "mariadbclient", "rt" }
 	else error("unknown os: " .. osname) end
