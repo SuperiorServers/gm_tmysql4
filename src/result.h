@@ -1,7 +1,7 @@
 #ifndef TMYSQL4_RESULT
 #define TMYSQL4_RESULT
 
-#include <string>
+#include <string.h>
 #include <vector>
 
 class PStatement;

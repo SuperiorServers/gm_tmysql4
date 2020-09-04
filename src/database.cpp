@@ -297,7 +297,7 @@ int Database::lua__tostring(lua_State* state)
 	
 	if (mysqldb != nullptr) {
 		char buff[100] = { 0 };
-		sprintf_s(buff, 100, "[Tmysql database: %s]", mysqldb->m_strDB);
+		sprintf(buff, "[tmysql database] %s", mysqldb->m_strDB);
 		LUA->PushString(buff);
 		return 1;
 	}
