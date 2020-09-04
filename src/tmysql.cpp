@@ -3,7 +3,8 @@
 
 using namespace GarrysMod::Lua;
 
-int tmysql::iRefDatabases = 0;
+std::set<Database*> tmysql::m_databases;
+
 bool tmysql::inShutdown = false;
 
 int tmysql::iDatabaseMTID = 0;
@@ -13,7 +14,14 @@ int iDBIndex = 0;
 
 int tmysql::lua_GetTable(lua_State* state)
 {
-	LUA->ReferencePush(iRefDatabases);
+	LUA->CreateTable();
+
+	int i = 1;
+	for (auto iter = m_databases.begin(); iter != m_databases.end(); iter++)
+		LUA->PushNumber(i++),
+		(*iter)->PushHandle(state),
+		LUA->SetTable(-3);
+
 	return 1;
 }
 
@@ -87,12 +95,8 @@ Database* tmysql::createDatabase(lua_State* state)
 		callbackfunc
 	);
 
-	// Insert database reference to the lua-accessible table
-	LUA->ReferencePush(tmysql::iRefDatabases);
-	LUA->PushNumber(++iDBIndex);
-	mysqldb->PushHandle(state);
-	LUA->SetTable(-3);
-	LUA->Pop();
+	if (mysqldb)
+		RegisterDatabase(mysqldb);
 
 	return mysqldb;
 }

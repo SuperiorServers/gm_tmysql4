@@ -18,6 +18,7 @@
 #include <errmsg.h>
 
 #include "query.h"
+#include <unordered_set>
 
 class PStatement;
 
@@ -70,6 +71,8 @@ public:
 	bool			IsPendingCallback() { return m_bIsPendingCallback; }
 	void			TriggerCallback(lua_State* state);
 	void			PushHandle(lua_State* state);
+	void			NullifyReference(lua_State* state);
+	void			DeregisterPStatement(PStatement* stmt) { m_preparedStatements.erase(stmt); }
 
 	PStatement*		CreateStatement(lua_State* state);
 	void			QueueStatement(PStatement* stmt, MYSQL_BIND* binds, int callback = -1, int callbackref = -1, bool usenumbers = false);
@@ -108,14 +111,12 @@ private:
 	bool			m_bIsConnected;
 	bool			m_bIsInGC;
 
+	int				m_iLuaRef = 0;
 	bool			m_bIsPendingCallback;
 	int				m_iCallback;
-	int				GetCallback() { return m_iCallback; }
 
 	bool			Connect(std::string& error);
-	void			Shutdown(void);
-	void			RunShutdownWork(void);
-	void			Release(void);
+	void			Release(lua_State* state);
 
 	void			RunQuery(Query* query);
 	void			RunStatement(PStatement* stmt, MYSQL_BIND* binds, DatabaseAction* action);
@@ -124,13 +125,15 @@ private:
 	void			DispatchCompletedActions(lua_State* state);
 
 	bool			SetCharacterSet(const char* charset, std::string& error);
-	char*			Escape(const char* query, unsigned int len);
+	char*			Escape(const char* query, unsigned int len, unsigned int* out_len);
 	bool			Option(mysql_option option, const char* arg, std::string& error);
 	const char*		GetServerInfo();
 	const char*		GetHostInfo();
 	int				GetServerVersion();
 
 	void			QueueQuery(const char* query, int callback = -1, int callbackref = -1, bool usenumbers = false);
+
+	std::unordered_set<PStatement*> m_preparedStatements;
 
 	ActionQueue		m_completedActions;
 

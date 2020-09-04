@@ -8,9 +8,6 @@ GMOD_MODULE_OPEN()
 
 	tmysql::inShutdown = false;
 
-	LUA->CreateTable();
-	tmysql::iRefDatabases = LUA->ReferenceCreate();
-
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	{
 		LUA->CreateTable();
@@ -230,26 +227,8 @@ GMOD_MODULE_CLOSE()
 {
 	tmysql::inShutdown = true;
 
-	// I don't think this is necessary anymore - gc functions get ran on shutdown so we shouldn't have to worry about that
-	// (I may be wrong but couldn't get it to leak or crash on me!
+	// Everything should be gc'd now, so we only really have to worry about killing mysql here
 
-	/*LUA->ReferencePush(tmysql::iRefDatabases);
-	LUA->PushNil();
-
-	while (LUA->Next(-2))
-	{
-		LUA->Push(-2);
-
-		Database* mysqldb = LUA->GetUserType<Database>(-2, tmysql::iDatabaseMTID);
-
-		if (mysqldb != nullptr)
-			mysqldb->Disconnect(state);
-
-		LUA->Pop(2);
-	}
-	LUA->Pop();*/
-
-	LUA->ReferenceFree(tmysql::iRefDatabases);
 	mysql_library_end();
 
 	return 0;

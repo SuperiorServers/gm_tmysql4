@@ -8,6 +8,8 @@
 #define DATABASE_MT_NAME "Database"
 #define PSTMT_MT_NAME "PreparedStatement"
 
+#define LUA_GLOBAL -10002
+
 #if defined(_WIN32) || defined(WIN32)
 
 #include <winsock2.h>

@@ -21,7 +21,7 @@ DatabaseAction::~DatabaseAction(void)
 
 void DatabaseAction::TriggerCallback(lua_State* state)
 {
-	if (m_iCallback < 0)
+	if (m_iCallback <= 0)
 		return;
 
 	LUA->ReferencePush(m_iCallback);
@@ -35,7 +35,7 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	}
 
 	int args = 1;
-	if (m_iCallbackRef >= 0)
+	if (m_iCallbackRef > 0)
 	{
 		args = 2;
 		LUA->ReferencePush(m_iCallbackRef);
@@ -66,11 +66,10 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	// For some reason PCall crashes during shutdown??
 	if (LUA->PCall(args, 0, 0) != 0)
 	{
-		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-		LUA->GetField(-1, "ErrorNoHalt"); // could cache this function... but this really should not be called in the first place
-		LUA->Push(-3); // This is the error message from PCall
-		LUA->PushString("\n"); // add a newline since ErrorNoHalt does not do that itself
+		LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
+		LUA->Push(-3);
+		LUA->PushString("\n");
 		LUA->Call(2, 0);
-		LUA->Pop(2); // Pop twice since the PCall error is still on the stack
+		LUA->Pop();
 	}
 }

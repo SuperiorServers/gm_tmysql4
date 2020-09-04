@@ -11,6 +11,7 @@ public:
 
 	void		PushHandle(lua_State* state);
 	void		Execute(MYSQL_BIND* binds, DatabaseAction* action);
+	void		Release(lua_State* state);
 
 	MYSQL_STMT* GetInternal() { return m_stmt; }
 
@@ -24,6 +25,7 @@ private:
 	MYSQL_STMT* m_stmt;
 
 	int			m_numArgs;
+	int			m_iLuaRef = 0;
 };
 
 #endif

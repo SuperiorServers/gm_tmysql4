@@ -47,9 +47,22 @@ PStatement::~PStatement(void)
 }
 
 void PStatement::PushHandle(lua_State* state) {
-	LUA->PushUserType(this, tmysql::iStatementMTID);
-	LUA->PushMetaTable(tmysql::iStatementMTID);
-	LUA->SetMetaTable(-2);
+	if (m_iLuaRef == 0)
+		LUA->PushUserType(this, tmysql::iStatementMTID),
+		m_iLuaRef = LUA->ReferenceCreate();
+
+	LUA->ReferencePush(m_iLuaRef);
+}
+
+void PStatement::Release(lua_State* state)
+{
+	PushHandle(state);
+	LUA->SetUserType(-1, NULL);
+	LUA->Pop();
+
+	LUA->ReferenceFree(m_iLuaRef);
+
+	delete this;
 }
 
 void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
@@ -90,69 +103,68 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 	deleteBinds(binds, m_numArgs);
 }
 
-int PStatement::lua___gc(lua_State* state)
+PStatement* getPStatementFromStack(lua_State* state, bool throwNullError)
 {
 	LUA->CheckType(1, tmysql::iStatementMTID);
-
 	PStatement* pstmt = LUA->GetUserType<PStatement>(1, tmysql::iStatementMTID);
-	delete pstmt;
+
+	if (throwNullError && pstmt == nullptr)
+		LUA->ThrowError("Tried to use a NULL tmysql prepared statement!");
+
+	return pstmt;
+}
+
+int PStatement::lua___gc(lua_State* state)
+{
+	PStatement* pstmt = getPStatementFromStack(state, false);
+
+	if (pstmt != nullptr)
+		pstmt->m_database->DeregisterPStatement(pstmt),
+		pstmt->Release(state);
 
 	return 0;
 }
 
 int PStatement::lua__tostring(lua_State* state)
 {
-	LUA->PushString("[tmysql prepared statement]");
+	PStatement* pstmt = getPStatementFromStack(state, false);
+
+	if (pstmt != nullptr)
+		LUA->PushString("[tmysql prepared statement]");
+	else
+		LUA->PushString("[NULL tmysql prepared statement]");
+
 	return 1;
 }
 
 int PStatement::lua_IsValid(lua_State* state)
 {
-	LUA->CheckType(1, tmysql::iStatementMTID);
+	PStatement* pstmt = getPStatementFromStack(state, false);
 
-	PStatement* pstmt = LUA->GetUserType<PStatement>(1, tmysql::iStatementMTID);
 	LUA->PushBool(pstmt != nullptr);
-
 	return 1;
 }
 
 int PStatement::lua_GetArgCount(lua_State* state)
 {
-	LUA->CheckType(1, tmysql::iStatementMTID);
+	PStatement* pstmt = getPStatementFromStack(state, true);
 
-	PStatement* pstmt = LUA->GetUserType<PStatement>(1, tmysql::iStatementMTID);
 	LUA->PushNumber(mysql_stmt_param_count(pstmt->GetInternal()));
-
 	return 1;
 }
 
 int PStatement::lua_Run(lua_State* state)
 {
-	LUA->CheckType(1, tmysql::iStatementMTID);
-
-	PStatement* stmt = LUA->GetUserType<PStatement>(1, tmysql::iStatementMTID);
-
-	if (stmt == nullptr) {
-		LUA->ThrowError("Attempted to call Run on an invalidated prepared statement");
-		return 0;
-	}
-
-	if (!stmt->m_database->IsConnected()) {
-		LUA->ThrowError("Attempted to call Run with a disconnected database");
-		return 0;
-	}
+	PStatement* pstmt = getPStatementFromStack(state, true);
 
 	// We always need all parameters, everything afterward is optional
-	if (LUA->Top() < stmt->m_numArgs + 1)
-	{
+	if (LUA->Top() < pstmt->m_numArgs + 1)
 		LUA->ThrowError("Attempting to call Run without enough arguments for prepared statement");
-		return 0;
-	}
 
-	MYSQL_BIND* binds = new MYSQL_BIND[stmt->m_numArgs];
-	memset(binds, 0, sizeof(MYSQL_BIND) * stmt->m_numArgs);
+	MYSQL_BIND* binds = new MYSQL_BIND[pstmt->m_numArgs];
+	memset(binds, 0, sizeof(MYSQL_BIND) * pstmt->m_numArgs);
 
-	for (int i = 0; i < stmt->m_numArgs; i++)
+	for (int i = 0; i < pstmt->m_numArgs; i++)
 	{
 		my_bool err;
 		binds[i].error = &err;
@@ -197,28 +209,26 @@ int PStatement::lua_Run(lua_State* state)
 			char err[256];
 			sprintf(err, "Unexpected type '%s' in prepared parameter #%i: expected string, number, boolean, or nil", Type::Name[type], i + 1);
 			LUA->ThrowError(err);
-
-			return 0;
 		}
 		}
 	}
 
 	int callbackfunc = -1;
-	if (LUA->GetType(stmt->m_numArgs + 2) == Type::Function)
+	if (LUA->GetType(pstmt->m_numArgs + 2) == Type::Function)
 	{
-		LUA->Push(stmt->m_numArgs + 2);
+		LUA->Push(pstmt->m_numArgs + 2);
 		callbackfunc = LUA->ReferenceCreate();
 	}
 
 	int callbackref = -1;
-	int callbackobj = LUA->GetType(stmt->m_numArgs + 3);
+	int callbackobj = LUA->GetType(pstmt->m_numArgs + 3);
 	if (callbackobj != Type::Nil)
 	{
-		LUA->Push(stmt->m_numArgs + 3);
+		LUA->Push(pstmt->m_numArgs + 3);
 		callbackref = LUA->ReferenceCreate();
 	}
 
-	stmt->m_database->QueueStatement(stmt, binds, callbackfunc, callbackref, LUA->GetBool(stmt->m_numArgs + 4));
+	pstmt->m_database->QueueStatement(pstmt, binds, callbackfunc, callbackref, LUA->GetBool(pstmt->m_numArgs + 4));
 
 	return 0;
 }
