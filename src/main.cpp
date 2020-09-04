@@ -230,7 +230,10 @@ GMOD_MODULE_CLOSE()
 {
 	tmysql::inShutdown = true;
 
-	LUA->ReferencePush(tmysql::iRefDatabases);
+	// I don't think this is necessary anymore - gc functions get ran on shutdown so we shouldn't have to worry about that
+	// (I may be wrong but couldn't get it to leak or crash on me!
+
+	/*LUA->ReferencePush(tmysql::iRefDatabases);
 	LUA->PushNil();
 
 	while (LUA->Next(-2))
@@ -244,7 +247,7 @@ GMOD_MODULE_CLOSE()
 
 		LUA->Pop(2);
 	}
-	LUA->Pop();
+	LUA->Pop();*/
 
 	LUA->ReferenceFree(tmysql::iRefDatabases);
 	mysql_library_end();

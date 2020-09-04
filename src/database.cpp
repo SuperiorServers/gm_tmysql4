@@ -6,17 +6,16 @@
 using namespace GarrysMod::Lua;
 
 Database::Database(const char* host, const char* user, const char* pass, const char* db, unsigned int port, const char* socket, unsigned long flags, int callback)
-	:  m_iPort(port), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL), m_bIsInGC(false)
+	: m_iPort(port), m_iClientFlags(flags), m_iCallback(callback), m_bIsConnected(false), m_MySQL(NULL), m_bIsInGC(false), io_context(), io_work(io_context.get_executor())
 {
-		strncpy(m_strHost, host, 253);
-		strncpy(m_strUser, user, 32);
-		strncpy(m_strPass, pass, 32);
-		strncpy(m_strDB, db, 64);
-		strncpy(m_strSocket, socket, 107);
-	work.reset(new asio::io_service::work(io_service));
+	strncpy(m_strHost, host, 253);
+	strncpy(m_strUser, user, 32);
+	strncpy(m_strPass, pass, 32);
+	strncpy(m_strDB, db, 64);
+	strncpy(m_strSocket, socket, 107);
 }
 
-Database::~Database( void )
+Database::~Database(void)
 {
 }
 
@@ -33,7 +32,7 @@ bool Database::Initialize(std::string& error)
 	if (!Connect(error))
 		return false;
 
-	thread_group.push_back(std::thread( [&]() { io_service.run(); } ));
+	io_thread = std::make_unique<std::thread>([&]() {io_context.run(); });
 
 	m_bIsConnected = true;
 	return true;
@@ -71,23 +70,17 @@ bool Database::Connect(std::string& error)
 
 void Database::Shutdown(void)
 {
-	work.reset();
-
-	for (auto iter = thread_group.begin(); iter != thread_group.end(); ++iter)
-		iter->join();
-
-	assert(io_service.stopped());
+	io_work.reset();
 }
 
-std::size_t Database::RunShutdownWork(void)
+void Database::RunShutdownWork(void)
 {
-	io_service.reset();
-	return io_service.run();
+	while (!io_context.stopped());
 }
 
 void Database::Release(void)
 {
-	assert(io_service.stopped());
+	io_thread.release();
 
 	if (m_MySQL != NULL)
 	{
@@ -145,13 +138,13 @@ bool Database::SetCharacterSet(const char* charset, std::string& error)
 void Database::QueueQuery(const char* query, int callback, int callbackref, bool usenumbers)
 {
 	Query* newquery = new Query(query, callback, callbackref, usenumbers);
-	io_service.post(std::bind(&Database::RunQuery, this, newquery));
+	asio::post(io_context, std::bind(&Database::RunQuery, this, newquery));
 }
 
 void Database::QueueStatement(PStatement* stmt, MYSQL_BIND* binds, int callback, int callbackref, bool usenumbers)
 {
 	DatabaseAction* action = new DatabaseAction(callback, callbackref, usenumbers);
-	io_service.post(std::bind(&Database::RunStatement, this, stmt, binds, action));
+	asio::post(io_context, std::bind(&Database::RunStatement, this, stmt, binds, action));
 }
 
 void Database::RunQuery(Query* query)
@@ -164,7 +157,7 @@ void Database::RunQuery(Query* query)
 #ifdef ENABLE_QUERY_TIMERS
 	query->GetTimer()->Start();
 #endif
-	retry:
+retry:
 	if (mysql_real_query(m_MySQL, strquery.c_str(), len) != 0) {
 
 		errorno = mysql_errno(m_MySQL);
@@ -237,10 +230,9 @@ void Database::Disconnect(lua_State* state)
 {
 	Shutdown();
 
-	DispatchCompletedActions(state);
+	RunShutdownWork();
 
-	while (RunShutdownWork())
-		DispatchCompletedActions(state);
+	DispatchCompletedActions(state);
 
 	Release();
 
@@ -281,6 +273,10 @@ int Database::lua___gc(lua_State* state)
 
 	if (mysqldb != nullptr)
 	{
+		// GC may get called twice because of references existing in GetTable and alone
+		if (mysqldb->m_bIsInGC)
+			return 0;
+
 		mysqldb->m_bIsInGC = true;
 		mysqldb->Disconnect(state);
 	}
@@ -294,14 +290,14 @@ int Database::lua__tostring(lua_State* state)
 	LUA->CheckType(1, tmysql::iDatabaseMTID);
 
 	Database* mysqldb = LUA->GetUserType<Database>(1, tmysql::iDatabaseMTID);
-	
+
 	if (mysqldb != nullptr) {
 		char buff[100] = { 0 };
 		sprintf(buff, "[tmysql database] %s", mysqldb->m_strDB);
 		LUA->PushString(buff);
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -460,12 +456,12 @@ int Database::lua_GetDatabase(lua_State* state)
 	LUA->CheckType(1, tmysql::iDatabaseMTID);
 
 	Database* mysqldb = LUA->GetUserType<Database>(1, tmysql::iDatabaseMTID);
-	
+
 	if (mysqldb != nullptr) {
 		LUA->PushString(mysqldb->m_strDB);
 		return 1;
 	}
-	
+
 	return 0;
 }
 

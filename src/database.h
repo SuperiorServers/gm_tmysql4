@@ -114,7 +114,7 @@ private:
 
 	bool			Connect(std::string& error);
 	void			Shutdown(void);
-	std::size_t		RunShutdownWork(void);
+	void			RunShutdownWork(void);
 	void			Release(void);
 
 	void			RunQuery(Query* query);
@@ -134,9 +134,9 @@ private:
 
 	ActionQueue		m_completedActions;
 
-	std::vector<std::thread> thread_group;
-	asio::io_service io_service;
-	std::unique_ptr<asio::io_service::work> work;
+	std::unique_ptr<std::thread> io_thread;
+	asio::io_context io_context;
+	asio::executor_work_guard<asio::io_context::executor_type> io_work;
 };
 
 #endif
