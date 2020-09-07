@@ -67,9 +67,10 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	if (LUA->PCall(args, 0, 0) != 0)
 	{
 		LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
+		LUA->PushString("[tmysql callback error]\n");
 		LUA->Push(-3);
 		LUA->PushString("\n");
-		LUA->Call(2, 0);
+		LUA->Call(3, 0);
 		LUA->Pop();
 	}
 }

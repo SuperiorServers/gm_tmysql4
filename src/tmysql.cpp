@@ -10,8 +10,6 @@ bool tmysql::inShutdown = false;
 int tmysql::iDatabaseMTID = 0;
 int tmysql::iStatementMTID = 0;
 
-int iDBIndex = 0;
-
 int tmysql::lua_GetTable(lua_State* state)
 {
 	LUA->CreateTable();

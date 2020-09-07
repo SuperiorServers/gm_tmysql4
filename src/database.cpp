@@ -212,9 +212,10 @@ void Database::TriggerCallback(lua_State* state)
 		if (LUA->PCall(1, 0, 0))
 		{
 			LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
+			LUA->PushString("[tmysql callback error]\n");
 			LUA->Push(-3);
 			LUA->PushString("\n");
-			LUA->Call(2, 0);
+			LUA->Call(3, 0);
 			LUA->Pop();
 		}
 
@@ -323,8 +324,8 @@ int Database::lua__tostring(lua_State* state)
 	Database* mysqldb = getDatabaseFromStack(state, false, false);
 
 	if (mysqldb != nullptr) {
-		char buff[100] = { 0 };
-		sprintf(buff, "[tmysql database] %s", mysqldb->m_strDB);
+		char buff[378] = { 0 };
+		sprintf(buff, "[tmysql] %s:%s@:%s:%s", mysqldb->m_strUser, mysqldb->m_strDB, mysqldb->m_strHost, std::to_string(mysqldb->m_iPort).c_str());
 		LUA->PushString(buff);
 		return 1;
 	}
