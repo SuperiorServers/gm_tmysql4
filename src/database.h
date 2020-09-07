@@ -24,6 +24,14 @@ class PStatement;
 
 inline std::string get_working_dir() { char buff[FILENAME_MAX]; GetCurrentDir(buff, FILENAME_MAX); return std::string(buff); }
 
+struct statementCreateWaiter {
+	PStatement* stmt = nullptr;
+	const char* query;
+	std::atomic_bool completed = false;
+	int errorNumber;
+	std::string errorMsg;
+};
+
 // From the boost atomic examples	
 template<typename T>
 class waitfree_action_queue {
@@ -74,7 +82,7 @@ public:
 	void			NullifyReference(lua_State* state);
 	void			DeregisterPStatement(PStatement* stmt) { m_preparedStatements.erase(stmt); }
 
-	PStatement*		CreateStatement(lua_State* state);
+	void			CreateStatement(statementCreateWaiter* task);
 	void			QueueStatement(PStatement* stmt, MYSQL_BIND* binds, int callback = -1, int callbackref = -1, bool usenumbers = false);
 
 	void			Disconnect(lua_State* state);

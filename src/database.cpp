@@ -275,13 +275,19 @@ void Database::DispatchCompletedActions(lua_State* state)
 	}
 }
 
-PStatement* Database::CreateStatement(lua_State* state)
+void Database::CreateStatement(statementCreateWaiter* task)
 {
-	const char* query = LUA->CheckString(2);
+	try {
+		PStatement* stmt = new PStatement(m_MySQL, this, task->query);
+		task->stmt = stmt;
+	}
+	catch (const my_exception& e)
+	{
+		task->errorNumber = e.errorNumber;
+		task->errorMsg = std::string(e.what());
+	}
 
-	PStatement* stmt = new PStatement(m_MySQL, this, query);
-
-	return stmt;
+	task->completed = true;
 }
 
 Database* getDatabaseFromStack(lua_State* state, bool throwNullError, bool throwDisconnectedError)
@@ -365,21 +371,27 @@ int Database::lua_Prepare(lua_State* state)
 {
 	Database* mysqldb = getDatabaseFromStack(state, true, true);
 
-	PStatement* stmt;
+	struct statementCreateWaiter task;
+	task.query = LUA->CheckString(2);
 
-	try {
-		stmt = mysqldb->CreateStatement(state);
-	}
-	catch (const my_exception& error)
+	// The module may be handling pending queries at the moment.
+	// We can't intrude on mysql commands or we'll get errors.
+	// So we will post this and wait out the existing queue instead.
+	// It shouldn't be a big deal - if you're preparing statements while
+	// people are playing the game, you're doing something wrong.
+	asio::post(mysqldb->io_context, std::bind(&Database::CreateStatement, mysqldb, &task));
+	while (!task.completed);
+
+	if (task.stmt == nullptr) // errored
 	{
 		LUA->PushNil();
-		LUA->PushString(error.what());
+		LUA->PushString(("[" + std::to_string(task.errorNumber) + "] " + std::string(task.errorMsg)).c_str());
 		return 2;
 	}
 
-	mysqldb->m_preparedStatements.insert(stmt);
+	mysqldb->m_preparedStatements.insert(task.stmt);
 
-	stmt->PushHandle(state);
+	task.stmt->PushHandle(state);
 	return 1;
 }
 
