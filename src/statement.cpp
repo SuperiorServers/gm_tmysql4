@@ -74,9 +74,7 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 			if (strlen(static_cast<char*>(binds[i].buffer)) != binds[i].buffer_length)
 				binds[i].buffer_type = MYSQL_TYPE_BLOB;
 
-#ifdef ENABLE_QUERY_TIMERS
-	action->GetTimer()->Start();
-#endif
+	StartQueryTimer(action);
 
 	retry:
 	mysql_stmt_bind_param(m_stmt, binds);
@@ -89,9 +87,7 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 		}
 	}
 
-#ifdef ENABLE_QUERY_TIMERS
-	action->GetTimer()->Stop();
-#endif
+	EndQueryTimer(action);
 
 	if (errorno != 0)
 		action->AddResult(new Result(errorno, mysql_stmt_error(m_stmt)));

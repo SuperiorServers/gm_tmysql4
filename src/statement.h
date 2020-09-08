@@ -1,5 +1,4 @@
-#ifndef TMYSQL4_STATEMENT
-#define TMYSQL4_STATEMENT
+#pragma once
 
 class Database;
 class DatabaseAction;
@@ -29,5 +28,3 @@ private:
 	int			m_numArgs;
 	int			m_iLuaRef = 0;
 };
-
-#endif

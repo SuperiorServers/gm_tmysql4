@@ -1,5 +1,4 @@
-#ifndef TMYSQL4_MAIN
-#define TMYSQL4_MAIN
+#pragma once
 
 #define GMOD_ALLOW_DEPRECATED
 
@@ -40,5 +39,3 @@ public:
 };
 
 #define ThrowException(mysql) throw my_exception(mysql_errno(mysql), mysql_error(mysql))
-
-#endif

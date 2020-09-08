@@ -143,9 +143,7 @@ void Database::RunQuery(Query* query)
 	bool hasRetried = false;
 	unsigned int errorno = NULL;
 
-#ifdef ENABLE_QUERY_TIMERS
-	query->GetTimer()->Start();
-#endif
+	StartQueryTimer(query);
 
 retry:
 	if (mysql_real_query(m_MySQL, strquery.c_str(), len) != 0) {
@@ -158,9 +156,7 @@ retry:
 		}
 	}
 
-#ifdef ENABLE_QUERY_TIMERS
-	query->GetTimer()->Stop();
-#endif
+	EndQueryTimer(query);
 
 	if (errorno != 0)
 		query->AddResult(new Result(errorno, mysql_error(m_MySQL)));

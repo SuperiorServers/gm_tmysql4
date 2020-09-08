@@ -1,5 +1,4 @@
-#ifndef TMYSQL4_DBACTION
-#define TMYSQL4_DBACTION
+#pragma once
 
 #include "result.h"
 #include "timer.h"
@@ -23,12 +22,5 @@ private:
 
 	Results				m_pResults;
 
-#ifdef ENABLE_QUERY_TIMERS
-public:
-	Timer*				GetTimer() { return m_queryTimer; }
-private:
-	Timer*				m_queryTimer;
-#endif
+	AddQueryTimerMembers();
 };
-
-#endif

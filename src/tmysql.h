@@ -1,5 +1,4 @@
-#ifndef TMYSQL4_TMYSQL
-#define TMYSQL4_TMYSQL
+#pragma once
 
 #include "database.h"
 #include <set>
@@ -20,10 +19,8 @@ public:
 	static void		RegisterDatabase(Database* mysqldb) { m_databases.insert(mysqldb); }
 	static void		DeregisterDatabase(Database* mysqldb) { m_databases.erase(mysqldb); }
 
-	static std::set<Database*>	m_databases;
+	static std::set<Database*> m_databases;
 
 private:
 	static Database* createDatabase(lua_State* state);
 };
-
-#endif

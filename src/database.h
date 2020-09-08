@@ -1,5 +1,4 @@
-#ifndef TMYSQL4_DATABASE
-#define TMYSQL4_DATABASE
+#pragma once
 
 #define ASIO_STANDALONE 
 #define ASIO_HAS_STD_ADDRESSOF
@@ -148,5 +147,3 @@ private:
 	asio::io_context io_context;
 	asio::executor_work_guard<asio::io_context::executor_type> io_work;
 };
-
-#endif

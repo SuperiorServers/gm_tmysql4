@@ -1,5 +1,4 @@
-#ifndef TMYSQL4_RESULT
-#define TMYSQL4_RESULT
+#pragma once
 
 #include <string.h>
 #include <vector>
@@ -33,5 +32,3 @@ private:
 };
 
 typedef std::vector<Result*> Results;
-
-#endif
