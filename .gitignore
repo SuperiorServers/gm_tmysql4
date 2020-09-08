@@ -29,8 +29,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-windows-vs2017/
-linux-gmake/
+windows-*/
+linux-*/
 
 # Visual Studio 2015 cache/options directory
 .vs/
