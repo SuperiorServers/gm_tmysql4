@@ -38,11 +38,11 @@ workspace "tmysql4"
 	project "tmysql4_x86"
 		architecture "x86"
 		libdirs { "../library/x86" }
-		targetsuffix (osname == "windows" and "_win32" or osname)
+		targetsuffix (osname == "windows" and "win32" or osname)
 		targetdir ("../bin/x86/")
 
 	project "tmysql4_x64"
 		architecture "x86_64"
 		libdirs { "../library/x64" }
-		targetsuffix (osname == "windows" and "_win64" or osname)
+		targetsuffix (osname == "windows" and "win64" or osname)
 		targetdir ("../bin/x64/")
