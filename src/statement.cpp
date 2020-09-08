@@ -23,18 +23,18 @@ static void deleteBinds(MYSQL_BIND* binds, int count)
 	delete[] binds;
 }
 
-PStatement::PStatement(MYSQL* conn, Database* parent, const char* query)
+PStatement::PStatement(MYSQL* conn, Database* parent, const char* query) :
+	m_database(parent),
+	m_query(query),
+	m_stmt(mysql_stmt_init(conn))
 {
-	m_database = parent;
-	m_stmt = mysql_stmt_init(conn);
-
 	if (m_stmt == nullptr)
 		ThrowException(conn);
 
 	bool attr = 1;
 	mysql_stmt_attr_set(m_stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &attr);
 
-	if (mysql_stmt_prepare(m_stmt, query, strlen(query)) != 0)
+	if (mysql_stmt_prepare(m_stmt, m_query.c_str(), m_query.length()) != 0)
 		ThrowException(conn);
 
 	m_numArgs = mysql_stmt_param_count(m_stmt);
@@ -73,9 +73,11 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 		if (binds[i].buffer_type == MYSQL_TYPE_STRING)
 			if (strlen(static_cast<char*>(binds[i].buffer)) != binds[i].buffer_length)
 				binds[i].buffer_type = MYSQL_TYPE_BLOB;
+
 #ifdef ENABLE_QUERY_TIMERS
 	action->GetTimer()->Start();
 #endif
+
 	retry:
 	mysql_stmt_bind_param(m_stmt, binds);
 	if (mysql_stmt_execute(m_stmt) != 0) {
@@ -86,9 +88,11 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 			goto retry;
 		}
 	}
+
 #ifdef ENABLE_QUERY_TIMERS
 	action->GetTimer()->Stop();
 #endif
+
 	if (errorno != 0)
 		action->AddResult(new Result(errorno, mysql_stmt_error(m_stmt)));
 	else {
@@ -119,7 +123,7 @@ int PStatement::lua___gc(lua_State* state)
 	PStatement* pstmt = getPStatementFromStack(state, false);
 
 	if (pstmt != nullptr)
-		pstmt->m_database->DeregisterPStatement(pstmt),
+		pstmt->m_database->DeregisterStatement(pstmt->GetQuery()),
 		pstmt->Release(state);
 
 	return 0;
@@ -169,7 +173,7 @@ int PStatement::lua_Run(lua_State* state)
 		my_bool err;
 		binds[i].error = &err;
 
-		Type::Enum type = (Type::Enum)LUA->GetType(i + 2);
+		int type = LUA->GetType(i + 2);
 		switch (type)
 		{
 		case Type::Enum::String:
@@ -207,7 +211,7 @@ int PStatement::lua_Run(lua_State* state)
 			deleteBinds(binds, i);
 
 			char err[256];
-			sprintf(err, "Unexpected type '%s' in prepared parameter #%i: expected string, number, boolean, or nil", Type::Name[type], i + 1);
+			sprintf(err, "Unexpected type '%s' in prepared parameter #%i: expected string, number, boolean, or nil", LUA->GetTypeName(type), i + 1);
 			LUA->ThrowError(err);
 		}
 		}

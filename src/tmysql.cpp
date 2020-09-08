@@ -5,19 +5,24 @@ using namespace GarrysMod::Lua;
 
 std::set<Database*> tmysql::m_databases;
 
-bool tmysql::inShutdown = false;
-
 int tmysql::iDatabaseMTID = 0;
 int tmysql::iStatementMTID = 0;
+
+void tmysql::ThrowErrorNoHalt(lua_State* state, std::string error)
+{
+	LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
+	LUA->PushString(error.append("\n").c_str());
+	LUA->Call(1, 0);
+}
 
 int tmysql::lua_GetTable(lua_State* state)
 {
 	LUA->CreateTable();
 
 	int i = 1;
-	for (auto iter = m_databases.begin(); iter != m_databases.end(); iter++)
+	for (auto db : m_databases)
 		LUA->PushNumber(i++),
-		(*iter)->PushHandle(state),
+		db->PushHandle(state),
 		LUA->SetTable(-3);
 
 	return 1;

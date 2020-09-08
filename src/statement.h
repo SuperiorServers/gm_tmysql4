@@ -12,6 +12,7 @@ public:
 	void		PushHandle(lua_State* state);
 	void		Execute(MYSQL_BIND* binds, DatabaseAction* action);
 	void		Release(lua_State* state);
+	std::string GetQuery() { return m_query; }
 
 	MYSQL_STMT* GetInternal() { return m_stmt; }
 
@@ -23,6 +24,7 @@ public:
 private:
 	Database*	m_database;
 	MYSQL_STMT* m_stmt;
+	std::string m_query;
 
 	int			m_numArgs;
 	int			m_iLuaRef = 0;

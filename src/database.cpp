@@ -44,22 +44,13 @@ bool Database::Connect(std::string& error)
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
 
 	my_bool tru = 1;
-	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &tru) > 0)
-	{
-		error.assign(mysql_error(m_MySQL));
-		return false;
-	}
-
 	std::string wkdir = get_working_dir() + "/garrysmod/lua/bin";
-	if (mysql_options(m_MySQL, MYSQL_PLUGIN_DIR, wkdir.c_str()) > 0)
-	{
-		error.assign(mysql_error(m_MySQL));
-		return false;
-	}
 
-	if (mysql_real_connect(m_MySQL, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, socket, flags) != m_MySQL)
+	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &tru) > 0 ||
+		mysql_options(m_MySQL, MYSQL_PLUGIN_DIR, wkdir.c_str()) > 0 ||
+		mysql_real_connect(m_MySQL, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, socket, flags) != m_MySQL)
 	{
-		error.assign("[" + std::to_string(mysql_errno(m_MySQL)) + "] " + std::string(mysql_error(m_MySQL)));
+		error.assign("[").append(std::to_string(mysql_errno(m_MySQL))).append("] ").append(mysql_error(m_MySQL));
 		return false;
 	}
 
@@ -80,9 +71,8 @@ void Database::Release(lua_State* state)
 
 	m_bIsConnected = false;
 
-	if (m_preparedStatements.size() > 0)
-		for (auto iter = m_preparedStatements.begin(); iter != m_preparedStatements.end(); ++iter)
-			(*iter)->Release(state);
+	for (auto [_, stmt] : m_preparedStatements)
+		stmt->Release(state);
 
 	NullifyReference(state);
 
@@ -199,25 +189,22 @@ void Database::TriggerCallback(lua_State* state)
 
 	if (m_iCallback >= 0)
 	{
+		LUA->GetField(LUA_GLOBAL, "debug");
+		LUA->GetField(-1, "traceback");
+
 		LUA->ReferencePush(m_iCallback);
 
 		if (!LUA->IsType(-1, Type::Function))
 		{
-			LUA->Pop();
+			LUA->Pop(3);
 			return;
 		}
 
 		PushHandle(state);
 
-		if (LUA->PCall(1, 0, 0))
-		{
-			LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
-			LUA->PushString("[tmysql callback error]\n");
-			LUA->Push(-3);
-			LUA->PushString("\n");
-			LUA->Call(3, 0);
-			LUA->Pop();
-		}
+		if (LUA->PCall(1, 0, -3))
+			ErrorNoHalt(std::string("[tmysql callback error]\n").append(LUA->GetString(-1))),
+			LUA->Pop(2);
 
 		LUA->ReferenceFree(m_iCallback);
 		m_iCallback = 0;
@@ -229,8 +216,6 @@ void Database::PushHandle(lua_State* state)
 	if (m_iLuaRef == 0)
 	{
 		LUA->PushUserType(this, tmysql::iDatabaseMTID);
-		//LUA->PushMetaTable(tmysql::iDatabaseMTID);
-		//LUA->SetMetaTable(-2);
 		m_iLuaRef = LUA->ReferenceCreate();
 	}
 
@@ -268,7 +253,7 @@ void Database::DispatchCompletedActions(lua_State* state)
 	{
 		DatabaseAction* action = completed;
 
-		if (!tmysql::inShutdown && !m_bIsInGC)
+		if (!m_bIsInGC)
 			action->TriggerCallback(state);
 
 		completed = action->next;
@@ -276,16 +261,16 @@ void Database::DispatchCompletedActions(lua_State* state)
 	}
 }
 
-void Database::CreateStatement(statementCreateWaiter* task)
+void Database::CreateStatement(const char* query, statementCreateWaiter* task)
 {
 	try {
-		PStatement* stmt = new PStatement(m_MySQL, this, task->query);
+		PStatement* stmt = new PStatement(m_MySQL, this, query);
 		task->stmt = stmt;
 	}
 	catch (const my_exception& e)
 	{
 		task->errorNumber = e.errorNumber;
-		task->errorMsg = std::string(e.what());
+		task->errorMsg = e.what();
 	}
 
 	task->completed = true;
@@ -372,25 +357,34 @@ int Database::lua_Prepare(lua_State* state)
 {
 	Database* mysqldb = getDatabaseFromStack(state, true, true);
 
+	const char* query = LUA->CheckString(2);
+
+	// Use cached statement when possible
+	auto pstmt = mysqldb->m_preparedStatements.find(query);
+	if (pstmt != mysqldb->m_preparedStatements.end())
+	{
+		pstmt->second->PushHandle(state);
+		return 1;
+	}
+
 	struct statementCreateWaiter task;
-	task.query = LUA->CheckString(2);
 
 	// The module may be handling pending queries at the moment.
 	// We can't intrude on mysql commands or we'll get errors.
 	// So we will post this and wait out the existing queue instead.
 	// It shouldn't be a big deal - if you're preparing statements while
 	// people are playing the game, you're doing something wrong.
-	asio::post(mysqldb->io_context, std::bind(&Database::CreateStatement, mysqldb, &task));
+	asio::post(mysqldb->io_context, std::bind(&Database::CreateStatement, mysqldb, query, &task));
 	while (!task.completed);
 
 	if (task.stmt == nullptr) // errored
 	{
 		LUA->PushNil();
-		LUA->PushString(("[" + std::to_string(task.errorNumber) + "] " + std::string(task.errorMsg)).c_str());
+		LUA->PushString(std::string("[").append(std::to_string(task.errorNumber)).append("] ").append(task.errorMsg).c_str());
 		return 2;
 	}
 
-	mysqldb->m_preparedStatements.insert(task.stmt);
+	mysqldb->m_preparedStatements.emplace(task.stmt->GetQuery(), task.stmt);
 
 	task.stmt->PushHandle(state);
 	return 1;

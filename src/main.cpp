@@ -6,8 +6,6 @@ GMOD_MODULE_OPEN()
 {
 	mysql_library_init(0, NULL, NULL);
 
-	tmysql::inShutdown = false;
-
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	{
 		LUA->CreateTable();
@@ -225,8 +223,6 @@ GMOD_MODULE_OPEN()
 
 GMOD_MODULE_CLOSE()
 {
-	tmysql::inShutdown = true;
-
 	// Everything should be gc'd now, so we only really have to worry about killing mysql here
 
 	mysql_library_end();

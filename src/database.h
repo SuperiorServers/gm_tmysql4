@@ -18,7 +18,7 @@
 #include <errmsg.h>
 
 #include "query.h"
-#include <unordered_set>
+#include <map>
 
 class PStatement;
 
@@ -26,7 +26,6 @@ inline std::string get_working_dir() { char buff[FILENAME_MAX]; GetCurrentDir(bu
 
 struct statementCreateWaiter {
 	PStatement* stmt = nullptr;
-	const char* query;
 	std::atomic_bool completed = false;
 	int errorNumber;
 	std::string errorMsg;
@@ -80,10 +79,10 @@ public:
 	void			TriggerCallback(lua_State* state);
 	void			PushHandle(lua_State* state);
 	void			NullifyReference(lua_State* state);
-	void			DeregisterPStatement(PStatement* stmt) { m_preparedStatements.erase(stmt); }
 
-	void			CreateStatement(statementCreateWaiter* task);
+	void			CreateStatement(const char* query, statementCreateWaiter* task);
 	void			QueueStatement(PStatement* stmt, MYSQL_BIND* binds, int callback = -1, int callbackref = -1, bool usenumbers = false);
+	void			DeregisterStatement(std::string query) { m_preparedStatements.erase(query); }
 
 	void			Disconnect(lua_State* state);
 
@@ -141,7 +140,7 @@ private:
 
 	void			QueueQuery(const char* query, int callback = -1, int callbackref = -1, bool usenumbers = false);
 
-	std::unordered_set<PStatement*> m_preparedStatements;
+	std::map<std::string, PStatement*> m_preparedStatements;
 
 	ActionQueue		m_completedActions;
 

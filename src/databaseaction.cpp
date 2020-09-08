@@ -1,4 +1,5 @@
 #include "main.h"
+#include "tmysql.h"
 #include "databaseaction.h"
 
 using namespace GarrysMod::Lua;
@@ -24,12 +25,15 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	if (m_iCallback <= 0)
 		return;
 
+	LUA->GetField(LUA_GLOBAL, "debug");
+	LUA->GetField(-1, "traceback");
+
 	LUA->ReferencePush(m_iCallback);
 	LUA->ReferenceFree(m_iCallback);
 
 	if (!LUA->IsType(-1, Type::Function))
 	{
-		LUA->Pop();
+		LUA->Pop(3);
 		LUA->ReferenceFree(m_iCallbackRef);
 		return;
 	}
@@ -64,13 +68,7 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	}
 
 	// For some reason PCall crashes during shutdown??
-	if (LUA->PCall(args, 0, 0) != 0)
-	{
-		LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
-		LUA->PushString("[tmysql callback error]\n");
-		LUA->Push(-3);
-		LUA->PushString("\n");
-		LUA->Call(3, 0);
-		LUA->Pop();
-	}
+	if (LUA->PCall(args, 0, -args - 2) != 0)
+		ErrorNoHalt(std::string("[tmysql callback error]\n").append(LUA->GetString(-1))),
+		LUA->Pop(2);
 }
