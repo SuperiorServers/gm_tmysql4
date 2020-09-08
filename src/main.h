@@ -2,7 +2,7 @@
 
 #define GMOD_ALLOW_DEPRECATED
 
-#define MODULE_VERSION 4.37
+#define MODULE_VERSION 4.4
 
 #define DATABASE_MT_NAME "Database"
 #define PSTMT_MT_NAME "PreparedStatement"

@@ -1,4 +1,4 @@
-# gm_tmysql4 **4.3**
+# gm_tmysql4 **4.4**
 
 ## Building
 1. Pull the [asio](https://github.com/chriskohlhoff/asio/) submodule using `git submodule update --init`
@@ -15,6 +15,18 @@ On Windows, make sure the module is compiling as multi-threaded DLL (/MD flag) a
 For any other issues, just verify all include directories are properly set up.
 
 # Changes
+### 4.37 -> 4.4 : No breaking changes
+```
+* Prepared Statements are now cached on the database
+  Lua refreshes that cause the same query to be prepared more than once 
+  will now just return the same PStatement object again.
+* Premake files are now located in the projects subfolder
+* Added separate x86 and x64 projects to the premake file instead of separate platforms on one project
+  By default, both x86 and x64 versions of the module will compile at the same time now
+* Updated buildprojects scripts for both Windows and Linux (Linux version works now, use vs2019 on Windows)
+* Enabled multicore compiling for Visual Studio projects
+```
+
 ### 4.35 -> 4.37 : No breaking changes
 ```
 * References to databases and statements are now properly invalidated on disconnect/gc
