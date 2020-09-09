@@ -8,6 +8,14 @@ GMOD_MODULE_OPEN()
 
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	{
+		LUA->GetField(-1, "debug");
+		LUA->GetField(-1, "traceback");
+		tmysql::iRefDebugTraceBack = LUA->ReferenceCreate();
+		LUA->Pop();
+
+		LUA->GetField(-1, "ErrorNoHalt");
+		tmysql::iRefErrorNoHalt = LUA->ReferenceCreate();
+
 		LUA->CreateTable();
 		{
 			LUA->PushNumber(MODULE_VERSION);
@@ -220,10 +228,11 @@ GMOD_MODULE_OPEN()
 	return 0;
 }
 
-
+// Everything should be gc'd now, so we only really have to worry about killing mysql here and freeing our refs
 GMOD_MODULE_CLOSE()
 {
-	// Everything should be gc'd now, so we only really have to worry about killing mysql here
+	LUA->ReferenceFree(tmysql::iRefDebugTraceBack);
+	LUA->ReferenceFree(tmysql::iRefErrorNoHalt);
 
 	mysql_library_end();
 

@@ -5,12 +5,14 @@ using namespace GarrysMod::Lua;
 
 std::set<Database*> tmysql::m_databases;
 
-int tmysql::iDatabaseMTID = 0;
-int tmysql::iStatementMTID = 0;
+int tmysql::iDatabaseMTID		= 0;
+int tmysql::iStatementMTID		= 0;
+int tmysql::iRefDebugTraceBack	= 0;
+int tmysql::iRefErrorNoHalt		= 0;
 
 void tmysql::ThrowErrorNoHalt(lua_State* state, std::string error)
 {
-	LUA->GetField(LUA_GLOBAL, "ErrorNoHalt");
+	LUA->ReferencePush(tmysql::iRefErrorNoHalt);
 	LUA->PushString(error.append("\n").c_str());
 	LUA->Call(1, 0);
 }

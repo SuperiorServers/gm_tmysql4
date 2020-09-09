@@ -185,14 +185,14 @@ void Database::TriggerCallback(lua_State* state)
 
 	if (m_iCallback >= 0)
 	{
-		LUA->GetField(LUA_GLOBAL, "debug");
-		LUA->GetField(-1, "traceback");
-
+		LUA->ReferencePush(tmysql::iRefDebugTraceBack);
 		LUA->ReferencePush(m_iCallback);
+		LUA->ReferenceFree(m_iCallback);
+		m_iCallback = 0;
 
 		if (!LUA->IsType(-1, Type::Function))
 		{
-			LUA->Pop(3);
+			LUA->Pop(2);
 			return;
 		}
 
@@ -200,10 +200,7 @@ void Database::TriggerCallback(lua_State* state)
 
 		if (LUA->PCall(1, 0, -3))
 			ErrorNoHalt(std::string("[tmysql callback error]\n").append(LUA->GetString(-1))),
-			LUA->Pop(2);
-
-		LUA->ReferenceFree(m_iCallback);
-		m_iCallback = 0;
+			LUA->Pop();
 	}
 }
 

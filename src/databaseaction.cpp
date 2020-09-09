@@ -22,16 +22,18 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	if (m_iCallback <= 0)
 		return;
 
-	LUA->GetField(LUA_GLOBAL, "debug");
-	LUA->GetField(-1, "traceback");
+	LUA->ReferencePush(tmysql::iRefDebugTraceBack);
 
 	LUA->ReferencePush(m_iCallback);
 	LUA->ReferenceFree(m_iCallback);
 
 	if (!LUA->IsType(-1, Type::Function))
 	{
-		LUA->Pop(3);
-		LUA->ReferenceFree(m_iCallbackRef);
+		LUA->Pop(2);
+
+		if (m_iCallbackRef > 0)
+			LUA->ReferenceFree(m_iCallbackRef);
+
 		return;
 	}
 
@@ -63,5 +65,5 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	// For some reason PCall crashes during shutdown??
 	if (LUA->PCall(args, 0, -args - 2) != 0)
 		ErrorNoHalt(std::string("[tmysql callback error]\n").append(LUA->GetString(-1))),
-		LUA->Pop(2);
+		LUA->Pop(1);
 }

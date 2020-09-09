@@ -9,6 +9,8 @@ class tmysql {
 public:
 	static int		iDatabaseMTID;
 	static int		iStatementMTID;
+	static int		iRefDebugTraceBack;
+	static int		iRefErrorNoHalt;
 
 	static void		ThrowErrorNoHalt(lua_State* state, std::string error);
 
