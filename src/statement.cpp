@@ -26,8 +26,25 @@ static void deleteBinds(MYSQL_BIND* binds, int count)
 PStatement::PStatement(MYSQL* conn, Database* parent, const char* query) :
 	m_database(parent),
 	m_query(query),
-	m_stmt(mysql_stmt_init(conn))
+	m_stmt(0),
+	m_numArgs(0)
 {
+	Prepare(conn);
+}
+
+PStatement::~PStatement(void)
+{
+	if (m_stmt != nullptr)
+		mysql_stmt_close(m_stmt);
+}
+
+void PStatement::Prepare(MYSQL* conn)
+{
+	if (m_stmt != nullptr)
+		mysql_stmt_close(m_stmt);
+
+	m_stmt = mysql_stmt_init(conn);
+
 	if (m_stmt == nullptr)
 		ThrowException(conn);
 
@@ -38,12 +55,6 @@ PStatement::PStatement(MYSQL* conn, Database* parent, const char* query) :
 		ThrowException(conn);
 
 	m_numArgs = mysql_stmt_param_count(m_stmt);
-}
-
-PStatement::~PStatement(void)
-{
-	if (m_stmt != nullptr)
-		mysql_stmt_close(m_stmt);
 }
 
 void PStatement::PushHandle(lua_State* state) {
@@ -82,6 +93,8 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 		errorno = mysql_stmt_errno(m_stmt);
 
 		if (!hasRetried && ((errorno == CR_SERVER_LOST) || (errorno == CR_SERVER_GONE_ERROR) || (errorno != CR_CONN_HOST_ERROR) || (errorno == 1053)/*ER_SERVER_SHUTDOWN*/ || (errorno != CR_CONNECTION_ERROR))) {
+			std::string err;
+			m_database->Connect(err, true);
 			hasRetried = true;
 			goto retry;
 		}

@@ -38,15 +38,17 @@ bool Database::Initialize(std::string& error)
 	return true;
 }
 
-bool Database::Connect(std::string& error)
+bool Database::Connect(std::string& error, bool isReconnect)
 {
+	mysql_kill(m_MySQL, mysql_thread_id(m_MySQL));
+
 	const char* socket = (strlen(m_strSocket) == 0) ? nullptr : m_strSocket;
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
 
-	my_bool tru = 1;
+	my_bool fals = 0;
 	std::string wkdir = get_working_dir() + "/garrysmod/lua/bin";
 
-	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &tru) > 0 ||
+	if (mysql_options(m_MySQL, MYSQL_OPT_RECONNECT, &fals) > 0 ||
 		mysql_options(m_MySQL, MYSQL_PLUGIN_DIR, wkdir.c_str()) > 0 ||
 		mysql_real_connect(m_MySQL, m_strHost, m_strUser, m_strPass, m_strDB, m_iPort, socket, flags) != m_MySQL)
 	{
@@ -54,7 +56,10 @@ bool Database::Connect(std::string& error)
 		return false;
 	}
 
-	m_bIsPendingCallback = true;
+	for (auto [_, stmt] : m_preparedStatements)
+		stmt->Prepare(m_MySQL);
+
+	m_bIsPendingCallback = !isReconnect;
 
 	return true;
 }
@@ -151,6 +156,8 @@ retry:
 		errorno = mysql_errno(m_MySQL);
 
 		if (!hasRetried && ((errorno == CR_SERVER_LOST) || (errorno == CR_SERVER_GONE_ERROR) || (errorno != CR_CONN_HOST_ERROR) || (errorno == 1053)/*ER_SERVER_SHUTDOWN*/ || (errorno != CR_CONNECTION_ERROR))) {
+			std::string err;
+			Connect(err, true);
 			hasRetried = true;
 			goto retry;
 		}

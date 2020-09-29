@@ -8,6 +8,8 @@ public:
 	PStatement(MYSQL* conn, Database* parent, const char* query);
 	~PStatement(void);
 
+	void		Prepare(MYSQL* conn);
+
 	void		PushHandle(lua_State* state);
 	void		Execute(MYSQL_BIND* binds, DatabaseAction* action);
 	void		Release(lua_State* state);

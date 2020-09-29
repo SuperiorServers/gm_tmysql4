@@ -73,6 +73,7 @@ public:
 	~Database(void);
 
 	bool			Initialize(std::string& error);
+	bool			Connect(std::string& error, bool isReconnect = false);
 	bool			IsConnected(void) { return m_bIsConnected; };
 	bool			IsPendingCallback() { return m_bIsPendingCallback; }
 	void			TriggerCallback(lua_State* state);
@@ -121,7 +122,6 @@ private:
 	bool			m_bIsPendingCallback;
 	int				m_iCallback;
 
-	bool			Connect(std::string& error);
 	void			Release(lua_State* state);
 
 	void			RunQuery(Query* query);
