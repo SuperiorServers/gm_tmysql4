@@ -79,6 +79,7 @@ public:
 	void			TriggerCallback(lua_State* state);
 	void			PushHandle(lua_State* state);
 	void			NullifyReference(lua_State* state);
+	MYSQL*			GetMySQLHandle() { return m_MySQL; }
 
 	void			CreateStatement(const char* query, statementCreateWaiter* task);
 	void			QueueStatement(PStatement* stmt, MYSQL_BIND* binds, int callback = -1, int callbackref = -1, bool usenumbers = false);

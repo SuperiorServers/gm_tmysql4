@@ -40,7 +40,8 @@ bool Database::Initialize(std::string& error)
 
 bool Database::Connect(std::string& error, bool isReconnect)
 {
-	mysql_kill(m_MySQL, mysql_thread_id(m_MySQL));
+	if (isReconnect)
+		mysql_kill(m_MySQL, mysql_thread_id(m_MySQL));
 
 	const char* socket = (strlen(m_strSocket) == 0) ? nullptr : m_strSocket;
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
@@ -146,27 +147,32 @@ void Database::RunQuery(Query* query)
 	size_t len = strquery.length();
 
 	bool hasRetried = false;
-	unsigned int errorno = NULL;
+	unsigned int errorno;
 
 	StartQueryTimer(query);
 
 retry:
+	std::string qErr; // We were running mysql_error in AddResult which would grab the wrong error string if the database attempted a reconnect
+	errorno = 0;
+
 	if (mysql_real_query(m_MySQL, strquery.c_str(), len) != 0) {
 
 		errorno = mysql_errno(m_MySQL);
+		qErr = mysql_error(m_MySQL);
 
-		if (!hasRetried && ((errorno == CR_SERVER_LOST) || (errorno == CR_SERVER_GONE_ERROR) || (errorno != CR_CONN_HOST_ERROR) || (errorno == 1053)/*ER_SERVER_SHUTDOWN*/ || (errorno != CR_CONNECTION_ERROR))) {
+		if (!hasRetried && (errorno == CR_SERVER_LOST || errorno == CR_SERVER_GONE_ERROR || errorno == 1053 /* Server shutdown in progress */)) {
 			std::string err;
-			Connect(err, true);
 			hasRetried = true;
-			goto retry;
+
+			if (Connect(err, true))
+				goto retry;
 		}
 	}
 
 	EndQueryTimer(query);
 
 	if (errorno != 0)
-		query->AddResult(new Result(errorno, mysql_error(m_MySQL)));
+		query->AddResult(new Result(errorno, qErr.c_str()));
 	else {
 		int status = 0;
 		while (status != -1) {

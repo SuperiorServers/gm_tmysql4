@@ -78,7 +78,8 @@ void PStatement::Release(lua_State* state)
 
 void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 	bool hasRetried = false;
-	unsigned int errorno = NULL;
+	bool hasRetriedStatement = false;
+	unsigned int errorno;
 
 	for (int i = 0; i < m_numArgs; i++)
 		if (binds[i].buffer_type == MYSQL_TYPE_STRING)
@@ -87,15 +88,23 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 
 	StartQueryTimer(action);
 
-	retry:
+retry:
+	errorno = 0;
 	mysql_stmt_bind_param(m_stmt, binds);
 	if (mysql_stmt_execute(m_stmt) != 0) {
 		errorno = mysql_stmt_errno(m_stmt);
 
-		if (!hasRetried && ((errorno == CR_SERVER_LOST) || (errorno == CR_SERVER_GONE_ERROR) || (errorno != CR_CONN_HOST_ERROR) || (errorno == 1053)/*ER_SERVER_SHUTDOWN*/ || (errorno != CR_CONNECTION_ERROR))) {
+		if (!hasRetried && (errorno == CR_SERVER_LOST || errorno == CR_SERVER_GONE_ERROR || errorno == 1053 /* Server shutdown in progress */)) {
 			std::string err;
-			m_database->Connect(err, true);
 			hasRetried = true;
+
+			if (m_database->Connect(err, true))
+				goto retry;
+		}
+
+		if (!hasRetriedStatement && errorno == 1243) { // Unknown prepared statement handler - often happens once after reconnecting?
+			Prepare(m_database->GetMySQLHandle());
+			hasRetriedStatement = true;
 			goto retry;
 		}
 	}
@@ -103,7 +112,7 @@ void PStatement::Execute(MYSQL_BIND* binds, DatabaseAction* action) {
 	EndQueryTimer(action);
 
 	if (errorno != 0)
-		action->AddResult(new Result(errorno, mysql_stmt_error(m_stmt)));
+		action->AddResult(new Result (errorno, mysql_stmt_error(m_stmt)));
 	else {
 		int status = 0;
 		while (status != -1) {
