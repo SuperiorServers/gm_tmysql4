@@ -1,7 +1,7 @@
 local osname = os.target()
 
 workspace "tmysql4"
-	configurations { "Release" }
+	configurations { "Release", "Debug" }
 	platforms { "DLL" }
 
 	language "C++"
@@ -10,7 +10,7 @@ workspace "tmysql4"
 	location ( osname .."-".. _ACTION )
 	
 	flags { "NoPCH", "MultiProcessorCompile" }
-	symbols "Off"
+
 	editandcontinue "Off"
 	vectorextensions "SSE"
 	staticruntime "Off"
@@ -40,9 +40,17 @@ workspace "tmysql4"
 		libdirs { "../library/x86" }
 		targetsuffix (osname == "windows" and "win32" or osname)
 		targetdir ("../bin/x86/")
+		filter "Debug"
+			symbols "On"
+		filter "Release"
+			symbols "Off"
 
 	project "tmysql4_x64"
 		architecture "x86_64"
 		libdirs { "../library/x64" }
 		targetsuffix (osname == "windows" and "win64" or osname)
 		targetdir ("../bin/x64/")
+		filter "Debug"
+			symbols "On"
+		filter "Release"
+			symbols "Off"
