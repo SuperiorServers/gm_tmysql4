@@ -57,6 +57,10 @@ bool Database::Connect(std::string& error, bool isReconnect)
 		return false;
 	}
 
+	if (strlen(m_strCharSet) > 0)
+		if (!SetCharacterSet(m_strCharSet, error))
+			return false;
+
 	for (auto [_, stmt] : m_preparedStatements)
 		stmt->Prepare(m_MySQL);
 
@@ -126,6 +130,7 @@ bool Database::SetCharacterSet(const char* charset, std::string& error)
 		return false;
 	}
 
+	strncpy(m_strCharSet, charset, 64);
 	return true;
 }
 
@@ -505,7 +510,8 @@ int Database::lua_SetCharacterSet(lua_State* state)
 	const char* set = LUA->CheckString(2);
 
 	std::string error;
-	LUA->PushBool(mysqldb->SetCharacterSet(set, error));
+	bool success = mysqldb->SetCharacterSet(set, error);
+	LUA->PushBool(success);
 	LUA->PushString(error.c_str());
 	return 2;
 }

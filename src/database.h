@@ -112,6 +112,8 @@ private:
 	char			m_strUser[33] = { 0 };
 	char			m_strPass[33] = { 0 };
 	char			m_strDB[65] = { 0 };
+	char			m_strCharSet[65] = { 0 };
+
 	unsigned int	m_iPort;
 	char			m_strSocket[108] = { 0 };
 	unsigned long	m_iClientFlags;
