@@ -1,5 +1,9 @@
 # gm_tmysql4 **4.4**
 
+## Installing
+Either download or build the module, then drop resulting dll file in `garrysmod/lua/bin`. If `bin` folder doesn't exist, make it.
+**On Windows** you will also need to install VC++ Redist x86, otherwise the module will not load. https://aka.ms/vs/16/release/vc_redist.x86.exe
+
 ## Building
 1. Pull the [asio](https://github.com/chriskohlhoff/asio/) submodule using `git submodule update --init`
 2. Run the batch/shell file to generate project files
