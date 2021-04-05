@@ -71,6 +71,7 @@ bool Database::Connect(std::string& error, bool isReconnect)
 
 void Database::Release(lua_State* state)
 {
+	io_thread->join();
 	io_thread.release();
 
 	if (m_MySQL != NULL)
