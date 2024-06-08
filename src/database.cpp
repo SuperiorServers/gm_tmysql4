@@ -13,6 +13,8 @@ Database::Database(const char* host, const char* user, const char* pass, const c
 	strncpy(m_strPass, pass, 32);
 	strncpy(m_strDB, db, 64);
 	strncpy(m_strSocket, socket, 107);
+
+	m_MySQL = (MYSQL*)malloc(sizeof(MYSQL));
 }
 
 Database::~Database(void)
@@ -21,9 +23,9 @@ Database::~Database(void)
 
 bool Database::Initialize(std::string& error)
 {
-	m_MySQL = mysql_init(nullptr);
+	MYSQL* initPtr = mysql_init(m_MySQL);
 
-	if (m_MySQL == NULL)
+	if (initPtr == NULL)
 	{
 		error.assign("Out of memory!");
 		return false;
@@ -32,7 +34,7 @@ bool Database::Initialize(std::string& error)
 	if (!Connect(error))
 		return false;
 
-	io_thread = std::make_unique<std::thread>([&]() {io_context.run(); });
+	io_thread = std::make_unique<std::thread>([&]() {io_context.run(); });	
 
 	m_bIsConnected = true;
 	return true;
@@ -40,9 +42,6 @@ bool Database::Initialize(std::string& error)
 
 bool Database::Connect(std::string& error, bool isReconnect)
 {
-	if (isReconnect)
-		mysql_kill(m_MySQL, mysql_thread_id(m_MySQL));
-
 	const char* socket = (strlen(m_strSocket) == 0) ? nullptr : m_strSocket;
 	unsigned int flags = m_iClientFlags | CLIENT_MULTI_RESULTS;
 
@@ -74,16 +73,18 @@ void Database::Release(lua_State* state)
 	io_thread->join();
 	io_thread.release();
 
+	for (auto [_, stmt] : m_preparedStatements)
+		stmt->Release(state);
+
 	if (m_MySQL != NULL)
 	{
+		// This is a ridiculous hack to prevent hanging and crashing. Since we're forcing the refs to be freed in Lua, we really don't care about this list on the MYSQL object
+		m_MySQL->stmts = NULL;
+
 		mysql_close(m_MySQL);
-		m_MySQL = NULL;
 	}
 
 	m_bIsConnected = false;
-
-	for (auto [_, stmt] : m_preparedStatements)
-		stmt->Release(state);
 
 	NullifyReference(state);
 
@@ -193,7 +194,14 @@ retry:
 
 void Database::RunStatement(PStatement* stmt, MYSQL_BIND* binds, DatabaseAction* action)
 {
-	stmt->Execute(binds, action);
+	try
+	{
+		stmt->Execute(binds, action);
+	}
+	catch (const my_exception& e)
+	{
+		action->AddResult(new Result(e.errorNumber, e.what()));
+	}
 
 	m_completedActions.push(action);
 }
@@ -311,6 +319,8 @@ int Database::lua___gc(lua_State* state)
 	{
 		mysqldb->m_bIsInGC = true;
 		mysqldb->Disconnect(state);
+
+		delete mysqldb;
 	}
 
 	return 0;
