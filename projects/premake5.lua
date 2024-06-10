@@ -28,7 +28,7 @@ workspace "tmysql4"
 	elseif osname == "linux" then
 		links { "mariadbclient", "rt" }
 		buildoptions { "-pthread", "-Wl,-z,defs" }
-		linkoptions { "-lpthread", "-lcrypto", "-lssl" }
+		linkoptions { "-Wl,--no-as-needed", "-lpthread", "-lcrypto", "-lssl" }
 	else error("unknown os: " .. osname) end
 
 	targetprefix "gmsv_"
