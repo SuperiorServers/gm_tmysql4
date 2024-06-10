@@ -25,8 +25,10 @@ workspace "tmysql4"
 
 	if osname == "windows" then
 		links { "mariadbclient", "bcrypt" }
+		prebuildcommands { "call $(SolutionDir)../get-commit-hash.bat" }
 	elseif osname == "linux" then
 		links { "mariadbclient", "rt" }
+		prebuildcommands { "sh ../get-commit-hash.sh" }
 		buildoptions { "-pthread", "-Wl,-z,defs" }
 		linkoptions { "-Wl,--no-as-needed", "-lpthread", "-lcrypto", "-lssl" }
 	else error("unknown os: " .. osname) end
