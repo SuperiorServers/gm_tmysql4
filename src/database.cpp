@@ -319,8 +319,6 @@ int Database::lua___gc(lua_State* state)
 	{
 		mysqldb->m_bIsInGC = true;
 		mysqldb->Disconnect(state);
-
-		delete mysqldb;
 	}
 
 	return 0;
