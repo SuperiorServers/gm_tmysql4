@@ -1,4 +1,4 @@
-# gm_tmysql4 **4.4**
+# gm_tmysql4 **4.5**
 
 ## Installing
 Either download or build the module, then drop resulting dll file in `garrysmod/lua/bin`. If `bin` folder doesn't exist, make it.
@@ -19,6 +19,13 @@ On Windows, make sure the module is compiling as multi-threaded DLL (/MD flag) a
 For any other issues, just verify all include directories are properly set up.
 
 # Changes
+### 4.4 -> 4.5 : No breaking changes
+```
+* MariaDB C Connector version updated from 3.1.9 to 3.4.0
+* Fixed instances of lockups/crashes on map change
+* Adds `tmysql.Commit` to show the git hash the module was built at
+```
+
 ### 4.37 -> 4.4 : No breaking changes
 ```
 * Prepared Statements are now cached on the database
