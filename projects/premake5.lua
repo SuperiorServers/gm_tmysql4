@@ -8,7 +8,7 @@ workspace "tmysql4"
 	cppdialect "C++17"
 
 	location ( osname .."-".. _ACTION )
-	
+
 	flags { "NoPCH", "MultiProcessorCompile" }
 
 	editandcontinue "Off"
@@ -20,21 +20,23 @@ workspace "tmysql4"
 	warnings "Off"
 
 	kind "SharedLib"
-	includedirs { "../include/GarrysMod", "../include/" .. osname, "../include/asio/asio/include" }
-	files { "../src/**.*", "../include/GarrysMod/**.*", "../include/" .. osname .. "/**.*" }
+	includedirs { "../include/GarrysMod", "../include/connector", "../include/asio/asio/include" }
+	files { "../src/**.*", "../include/GarrysMod/**.*", "../include/connector/**.*" }
 
 	if osname == "windows" then
 		links { "mariadbclient", "bcrypt" }
+		prebuildcommands { "call $(SolutionDir)../get-commit-hash.bat" }
 	elseif osname == "linux" then
 		links { "mariadbclient", "rt" }
-		buildoptions { "-pthread", "-Wl,-z,defs" }			
-		linkoptions { "-lpthread", "-lcrypto", "-lssl" }
+		prebuildcommands { "sh ../get-commit-hash.sh" }
+		buildoptions { "-pthread", "-Wl,-z,defs" }
+		linkoptions { "-Wl,--no-as-needed", "-lpthread", "-lcrypto", "-lssl" }
 	else error("unknown os: " .. osname) end
 
 	targetprefix "gmsv_"
 	targetname "tmysql4_"
 	targetextension ".dll"
-	
+
 	project "tmysql4_x86"
 		architecture "x86"
 		libdirs { "../library/x86" }

@@ -1,6 +1,7 @@
 #include "main.h"
 #include "tmysql.h"
 #include "statement.h"
+#include "generated_git_commit_hash.h"
 
 GMOD_MODULE_OPEN()
 {
@@ -20,6 +21,9 @@ GMOD_MODULE_OPEN()
 		{
 			LUA->PushNumber(MODULE_VERSION);
 			LUA->SetField(-2, "Version");
+
+			LUA->PushString(MODULE_GIT_COMMIT);
+			LUA->SetField(-2, "Commit");
 
 			LUA->PushCFunction(tmysql::lua_Create);
 			LUA->SetField(-2, "Create");
