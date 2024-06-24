@@ -66,4 +66,5 @@ void DatabaseAction::TriggerCallback(lua_State* state)
 	if (LUA->PCall(args, 0, -args - 2) != 0)
 		ErrorNoHalt(std::string("[tmysql callback error]\n").append(LUA->GetString(-1))),
 		LUA->Pop(1);
+	LUA->Pop();
 }
