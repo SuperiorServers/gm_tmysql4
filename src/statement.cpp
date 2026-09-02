@@ -94,7 +94,7 @@ retry:
 	if (mysql_stmt_execute(m_stmt) != 0) {
 		errorno = mysql_stmt_errno(m_stmt);
 
-		if (!hasRetried && (errorno == CR_SERVER_LOST || errorno == CR_SERVER_GONE_ERROR || errorno == 1053 /* Server shutdown in progress */)) {
+		if (!hasRetried && (errorno == CR_SERVER_LOST || errorno == CR_SERVER_GONE_ERROR || errorno == ER_SERVER_SHUTDOWN)) {
 			std::string err;
 			hasRetried = true;
 
@@ -102,7 +102,7 @@ retry:
 				goto retry;
 		}
 
-		if (!hasRetriedStatement && errorno == 1243) { // Unknown prepared statement handler - often happens once after reconnecting?
+		if (!hasRetriedStatement && (errorno == ER_UNKNOWN_STMT_HANDLER || errorno == CR_NEW_STMT_METADATA)) {
 			Prepare(m_database->GetMySQLHandle());
 			hasRetriedStatement = true;
 			goto retry;
