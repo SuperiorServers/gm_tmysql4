@@ -29,6 +29,7 @@
 
 #include <condition_variable>
 #include <mysql.h>
+#include <mysqld_error.h>
 
 #include "Lua/Interface.h"
 

@@ -102,7 +102,7 @@ retry:
 				goto retry;
 		}
 
-		if (!hasRetriedStatement && (errorno == ER_UNKNOWN_STMT_HANDLER || errorno == CR_NEW_STMT_METADATA)) {
+		if (!hasRetriedStatement && (errorno == ER_UNKNOWN_STMT_HANDLER || errorno == CR_NEW_STMT_METADATA || errorno == ER_NEED_REPREPARE)) {
 			Prepare(m_database->GetMySQLHandle());
 			hasRetriedStatement = true;
 			goto retry;
