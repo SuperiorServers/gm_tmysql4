@@ -2,7 +2,7 @@
 
 #define GMOD_ALLOW_DEPRECATED
 
-#define MODULE_VERSION 4.5
+#define MODULE_VERSION 4.6
 
 #define DATABASE_MT_NAME "Database"
 #define PSTMT_MT_NAME "PreparedStatement"
@@ -30,6 +30,7 @@
 #include <condition_variable>
 #include <mysql.h>
 #include <mysqld_error.h>
+#include <errmsg.h>
 
 #include "Lua/Interface.h"
 

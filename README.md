@@ -1,11 +1,11 @@
-# gm_tmysql4 **4.5**
+# gm_tmysql4 **4.6**
 
 ## Installing
 Either download or build the module, then drop resulting dll file in `garrysmod/lua/bin`. If `bin` folder doesn't exist, make it.
 **On Windows** you will also need to install VC++ Redist x86, otherwise the module will not load. https://aka.ms/vs/16/release/vc_redist.x86.exe
 
 ## Building
-1. Pull the [asio](https://github.com/chriskohlhoff/asio/) submodule using `git submodule update --init`
+1. Pull the [asio](https://github.com/chriskohlhoff/asio/) and [MariaDB Connector/C](https://github.com/mariadb-corporation/mariadb-connector-c) submodules using `git submodule update --init`
 2. Run the batch/shell file to generate project files
 3. Build!
 
@@ -18,7 +18,17 @@ On Windows, make sure the module is compiling as multi-threaded DLL (/MD flag) a
 
 For any other issues, just verify all include directories are properly set up.
 
+The connector's public headers come straight from the `include/mariadb-connector-c` submodule (pinned to the release the static libraries in `library/` were built from). The only connector headers kept in `include/connector` are the two CMake generates, `mariadb_version.h` and `ma_config.h`; when the submodule is moved to a new release, rebuild the static libraries and copy the freshly generated pair from the build directory's `include` folder over them.
+
 # Changes
+### 4.5 -> 4.6 : No breaking changes
+```
+* Updated MariaDB C Connector version updated from 3.4.0 to 3.4.9 & added as a submodule
+* Prepared statements re-prepare themselves when their result set changes shape, table definition / metadata changes, or when a table is flushed out of the database server's cache, instead of failing every run until the connection is recreated
+* A preopared statement which loses connection will no longer infinate loop
+* A prepared statement whose rows could not be transferred or bound now reports the error instead of an empty successful result
+```
+
 ### 4.4 -> 4.5 : No breaking changes
 ```
 * MariaDB C Connector version updated from 3.1.9 to 3.4.0
@@ -29,7 +39,7 @@ For any other issues, just verify all include directories are properly set up.
 ### 4.37 -> 4.4 : No breaking changes
 ```
 * Prepared Statements are now cached on the database
-  Lua refreshes that cause the same query to be prepared more than once 
+  Lua refreshes that cause the same query to be prepared more than once
   will now just return the same PStatement object again.
 * Premake files are now located in the projects subfolder
 * Added separate x86 and x64 projects to the premake file instead of separate platforms on one project
@@ -89,13 +99,13 @@ Removed:
 ### 4 -> 4.1 : Breaks backwards compatibility
 ```
 Renamed:
-* tmysql.initalize -> tmysql.Connect  
+* tmysql.initalize -> tmysql.Connect
 * Database:Option -> Database:SetOption
 
-All enums are now separated into the following tables:  
-* tmysql.flags  
-* tmysql.opts  
-* tmysql.info  
+All enums are now separated into the following tables:
+* tmysql.flags
+* tmysql.opts
+* tmysql.info
 
 Added:
 * tmysql.Version

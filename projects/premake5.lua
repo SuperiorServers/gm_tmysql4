@@ -20,7 +20,7 @@ workspace "tmysql4"
 	warnings "Off"
 
 	kind "SharedLib"
-	includedirs { "../include/GarrysMod", "../include/connector", "../include/asio/asio/include" }
+	includedirs { "../include/GarrysMod", "../include/connector", "../include/mariadb-connector-c/include", "../include/asio/asio/include" }
 	files { "../src/**.*", "../include/GarrysMod/**.*", "../include/connector/**.*" }
 
 	if osname == "windows" then

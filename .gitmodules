@@ -1,3 +1,6 @@
 [submodule "include/asio"]
 	path = include/asio
 	url = https://github.com/chriskohlhoff/asio.git
+[submodule "include/mariadb-connector-c"]
+	path = include/mariadb-connector-c
+	url = https://github.com/mariadb-corporation/mariadb-connector-c.git
