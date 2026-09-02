@@ -114,12 +114,18 @@ retry:
 	if (errorno != 0)
 		action->AddResult(new Result (errorno, mysql_stmt_error(m_stmt)));
 	else {
+		// 0: another result set is waiting,
+		// -1: that was the last one,
+		// >0: the connection died or a later result set failed
 		int status = 0;
-		while (status != -1) {
+		while (status == 0) {
 			mysql_stmt_store_result(m_stmt);
 			action->AddResult(new Result(this));
 			status = mysql_stmt_next_result(m_stmt);
 		}
+
+		if (status > 0)
+			action->AddResult(new Result(mysql_stmt_errno(m_stmt), mysql_stmt_error(m_stmt)));
 	}
 
 	deleteBinds(binds, m_numArgs);
