@@ -83,11 +83,20 @@ Result::Result(PStatement* pStmt) :
 {
 	auto stmt = pStmt->GetInternal();
 
-	mysql_stmt_store_result(stmt);
 	MYSQL_RES* pResult = mysql_stmt_result_metadata(stmt);
 
 	if (pResult == nullptr)
 	{
+		mysql_free_result(pResult);
+		return;
+	}
+
+	// Pulls the whole set over; if that fails there are no rows to report, only the error
+	if (mysql_stmt_store_result(stmt) != 0)
+	{
+		m_iError = mysql_stmt_errno(stmt);
+		m_strError = mysql_stmt_error(stmt);
+
 		mysql_free_result(pResult);
 		return;
 	}
@@ -128,26 +137,40 @@ Result::Result(PStatement* pStmt) :
 		bind.is_unsigned = 0;
 	}
 
-	mysql_stmt_bind_result(stmt, binds);
-
-	for (unsigned int i = 0; i < rowCount; i++)
+	if (mysql_stmt_bind_result(stmt, binds) != 0)
 	{
-		int res = mysql_stmt_fetch(stmt);
-		if (res == 0)
+		m_iError = mysql_stmt_errno(stmt);
+		m_strError = mysql_stmt_error(stmt);
+	}
+	else
+	{
+		for (unsigned int i = 0; i < rowCount; i++)
 		{
-			for (unsigned int n = 0; n < colCount; n++)
+			int res = mysql_stmt_fetch(stmt);
+			if (res == 0)
 			{
-				if (!*(binds[n].is_null) && binds[n].buffer)
-					m_rows[i][n] = std::string(static_cast<char*>(binds[n].buffer), *binds[n].length);
-				else
-					m_nullRowValues[i][n] = true;
+				for (unsigned int n = 0; n < colCount; n++)
+				{
+					if (!*(binds[n].is_null) && binds[n].buffer)
+						m_rows[i][n] = std::string(static_cast<char*>(binds[n].buffer), *binds[n].length);
+					else
+						m_nullRowValues[i][n] = true;
+				}
 			}
-		}
-		else
-		{
-			m_iError = mysql_stmt_errno(stmt);
-			m_strError = mysql_stmt_error(stmt);
-			break;
+			else
+			{
+				m_iError = mysql_stmt_errno(stmt);
+				m_strError = mysql_stmt_error(stmt);
+
+				// A truncated row or an early end of data leaves the statement's own error clear, but the rows are still wrong or missing
+				if (m_iError == 0)
+				{
+					m_iError = CR_UNKNOWN_ERROR;
+					m_strError = (res == MYSQL_DATA_TRUNCATED) ? "Result row was truncated" : "Result set ended before its stored row count";
+				}
+
+				break;
+			}
 		}
 	}
 

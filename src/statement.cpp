@@ -119,7 +119,6 @@ retry:
 		// >0: the connection died or a later result set failed
 		int status = 0;
 		while (status == 0) {
-			mysql_stmt_store_result(m_stmt);
 			action->AddResult(new Result(this));
 			status = mysql_stmt_next_result(m_stmt);
 		}
