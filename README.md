@@ -27,6 +27,7 @@ The connector's public headers come straight from the `include/mariadb-connector
 * Prepared statements re-prepare themselves when their result set changes shape, table definition / metadata changes, or when a table is flushed out of the database server's cache, instead of failing every run until the connection is recreated
 * A preopared statement which loses connection will no longer infinate loop
 * A prepared statement whose rows could not be transferred or bound now reports the error instead of an empty successful result
+* Dropped the module's copy of zlib, the connector has its bundled zlib
 ```
 
 ### 4.4 -> 4.5 : No breaking changes
